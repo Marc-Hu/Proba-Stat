@@ -2,7 +2,9 @@ import email
 import re
 import matplotlib.pyplot as plt
 import numpy
+import operator
 
+GROUPEMENT = 150;
 def read_file(fname):
     """ Lit un fichier compose d'une liste de emails, chacun separe par au moins 2 lignes vides."""
     f = open(fname,'rb')
@@ -47,19 +49,80 @@ def len_email(liste):
 		len_liste.append(len(liste[i]));
 	return len_liste;
 
-#def apprend_modele(spam,nonspam):
-	
+def affiche_history(spam, nospam):
+    # bins = numpy.linspace(0, 1500);
+    # plt.hist(spam, bins, alpha=0.5, label='spam');
+    # plt.hist(nospam, bins, alpha=0.5, label='no spam');
+    plt.legend(loc='upper right');
+    # plt.show();
+    plt.hist(spam, bins=400, normed=1);
+    plt.hist(nospam, bins=400, normed=1, histtype='bar');
+    plt.show();
+
+def apprend_modele(mails):
+    mediane_mails = mails[int(len(mails)/2)];
+    current_value = mediane_mails;
+    limitB = mails.index(current_value);
+    mails_len = len(mails);
+    result = {};
+    limit = 5;
+    j = 0;
+    # print(mediane_spam, mediane_nospam);
+    while j<=limit :
+        if j<limit :
+            limitA=-1;
+            i=0;
+            while limitA==-1 :
+                if current_value-GROUPEMENT<0 :
+                    limitA=0;
+                else :
+                    try :
+                        limitA = mails.index(current_value - GROUPEMENT - i);
+                    except :
+                        i=i+1;
+        else :
+            limitA = 0;
+        array = mails[limitA : limitB];
+        result[limitA]=len(array)/mails_len;
+        current_value=mails[limitA];
+        limitB=limitA;
+        j=j+1;
+    limitA=mails.index(mediane_mails);
+    limitB=-1;
+    current_value=mediane_mails;
+    j=0;
+    while j<=limit :
+        if j<limit :
+            limitB=-1;
+            i=0;
+            while limitB==-1 :
+                if current_value+GROUPEMENT>mails[len(mails)-1] :
+                    limitB = len(mails)-1;
+                else :
+                    try :
+                        limitB = mails.index(current_value + GROUPEMENT + i);
+                    except :
+                        i=i+1;
+                    # print(limitA, limitB);
+        else :
+            limitB = len(mails)-1;
+        array = mails[limitA : limitB];
+        # print(len(array));
+        result[limitA]=len(array)/mails_len;
+        current_value=mails[limitB];
+        limitA=limitB;
+        j=j+1;
+    result = sorted(result.items(), key=operator.itemgetter(0))
+    print(result);
+
 
 if __name__ == '__main__':
-	spam = get_emails_from_file("spam.txt" )
-	nospam = get_emails_from_file("nospam.txt");
-	print(len(spam), spam[0]);
-	listeA, listeB= split(spam, 10);
-	print(len(listeA), len(listeB));
-	spam1 = len_email(spam);
-	spam2 = len_email(nospam);
-	bins = numpy.linspace(0, 1500)
-	plt.hist(spam1, bins, alpha=0.5, label='spam')
-	plt.hist(spam2, bins, alpha=0.5, label='no spam')
-	plt.legend(loc='upper right')
-	plt.show()
+    spam = get_emails_from_file("spam.txt" )
+    nospam = get_emails_from_file("nospam.txt");
+    listeA, listeB = split(spam, 10);
+    spam1 = sorted(len_email(spam));
+    nospam1 = sorted(len_email(nospam));
+    # print(spam1[int(len(spam1)/2)], spam2[int(len(spam2)/2)], spam1);
+    # affiche_history(spam1, spam2);
+    apprend_modele(spam1);
+    apprend_modele(nospam1)
