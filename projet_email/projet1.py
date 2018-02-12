@@ -5,6 +5,7 @@ import numpy
 import operator
 
 GROUPEMENT = 150;
+LIMIT = 5;
 def read_file(fname):
     """ Lit un fichier compose d'une liste de emails, chacun separe par au moins 2 lignes vides."""
     f = open(fname,'rb')
@@ -59,59 +60,127 @@ def affiche_history(spam, nospam):
     plt.hist(nospam, bins=400, normed=1, histtype='bar');
     plt.show();
 
+def getIndexLimit3(limits, mails):
+    k=1;
+    while limits[3]==-1 :
+        try :
+            limits[3] = mails.index(int(limits[1]) - k);
+            if mails[limits[3]+1] == mails[limits[3]] :
+                hasDuplicate = True;
+                while hasDuplicate :
+                    if(mails[limits[3]+1] != mails[limits[3]]) :
+                        hasDuplicate=False;
+                    else :
+                        limits[3]=limits[3]+1;
+        except :
+            k=k+1;
+    return limits[3];
+
+def getIndexLimit2(limits, mails, current_value):
+    i=0;
+    while limits[2]==-1 :
+        if current_value-GROUPEMENT<0 :
+            limits[2]=0;
+        else :
+            try :
+                limits[2] = mails.index(current_value - GROUPEMENT + i);
+            except :
+                i=i+1;
+    return limits[2];
+
+def first_half(mails, limits, current_value, mails_len):
+    j = 0;
+    result = {};
+    while j<=LIMIT :
+        if j<LIMIT :
+            limits[2]=-1;
+            limits[2]=getIndexLimit2(limits, mails, current_value);
+            limits[3]=getIndexLimit3(limits, mails);
+        else :
+            limits[2] = 0;
+            limits[0] = 0;
+            limits[3]=getIndexLimit3(limits, mails);
+        array = mails[limits[2] : limits[3]+1];
+        print(mails[limits[2] : limits[3]+1]);
+        result[limits[0]]=len(array)/mails_len;
+        if(j<LIMIT):
+            limits[0]=limits[0]-GROUPEMENT;
+            limits[1]=limits[1]-GROUPEMENT;
+            current_value=limits[1];
+            limits[2]=-1;
+            limits[3]=-1;
+        j=j+1;
+    return result;
+
+def getIndexLimit2ForSecondHalf(limits, mails, current_value):
+    i=0;
+    while limits[2]==-1 :
+        try :
+            limits[2] = mails.index(current_value + i);
+        except :
+            i=i+1;
+    return limits[2];
+
+def getIndexLimit3ForSecondHalf(limits, mails):
+    k=1;
+    while limits[3]==-1 :
+        try :
+            limits[3] = mails.index(int(limits[1]) - k);
+            if mails[limits[3]+1] == mails[limits[3]] :
+                hasDuplicate = True;
+                while hasDuplicate :
+                    if(mails[limits[3]+1] != mails[limits[3]]) :
+                        hasDuplicate=False;
+                    else :
+                        limits[3]=limits[3]+1;
+        except :
+            k=k+1;
+    return limits[3];
+
+def second_half(mails, limits, current_value, mails_len):
+    j = 0;
+    result = {};
+    # print(limits);
+    limits[0]=current_value;
+    limits[1]=current_value+GROUPEMENT;
+    while j<=LIMIT :
+        if j<LIMIT :
+            limits[2]=-1;
+            limits[3]=-1;
+            limits[2]=getIndexLimit2ForSecondHalf(limits, mails, current_value);
+            limits[3]=getIndexLimit3ForSecondHalf(limits, mails);
+        else :
+            # limits[0] = mails[len(mails)-1];
+            limits[2] = getIndexLimit2ForSecondHalf(limits, mails, current_value);
+            limits[3] = len(mails)-1;
+        array = mails[limits[2] : limits[3]+1];
+        print(mails[limits[2] : limits[3]+1]);
+        result[limits[0]]=len(array)/mails_len;
+        if j<LIMIT :
+            limits[0]=limits[0]+GROUPEMENT;
+            limits[1]=limits[1]+GROUPEMENT;
+            current_value=limits[0];
+            limits[2]=-1;
+            limits[3]=-1;
+        j=j+1;
+    return result;
+
 def apprend_modele(mails):
     mediane_mails = mails[int(len(mails)/2)];
     current_value = mediane_mails;
-    limitB = mails.index(current_value);
     mails_len = len(mails);
     result = {};
-    limit = 5;
-    j = 0;
-    # print(mediane_spam, mediane_nospam);
-    while j<=limit :
-        if j<limit :
-            limitA=-1;
-            i=0;
-            while limitA==-1 :
-                if current_value-GROUPEMENT<0 :
-                    limitA=0;
-                else :
-                    try :
-                        limitA = mails.index(current_value - GROUPEMENT - i);
-                    except :
-                        i=i+1;
-        else :
-            limitA = 0;
-        array = mails[limitA : limitB];
-        result[limitA]=len(array)/mails_len;
-        current_value=mails[limitA];
-        limitB=limitA;
-        j=j+1;
-    limitA=mails.index(mediane_mails);
-    limitB=-1;
+    limits=[mediane_mails-GROUPEMENT, mediane_mails, 0,mails.index(current_value)-1];
+    result = first_half(mails, limits, current_value, mails_len);
     current_value=mediane_mails;
-    j=0;
-    while j<=limit :
-        if j<limit :
-            limitB=-1;
-            i=0;
-            while limitB==-1 :
-                if current_value+GROUPEMENT>mails[len(mails)-1] :
-                    limitB = len(mails)-1;
-                else :
-                    try :
-                        limitB = mails.index(current_value + GROUPEMENT + i);
-                    except :
-                        i=i+1;
-                    # print(limitA, limitB);
-        else :
-            limitB = len(mails)-1;
-        array = mails[limitA : limitB];
-        # print(len(array));
-        result[limitA]=len(array)/mails_len;
-        current_value=mails[limitB];
-        limitA=limitB;
-        j=j+1;
+    result2 = second_half(mails, limits, current_value, mails_len);
+    print(result, result2);
+    for key, value in result2.items():
+        result[key]=value;
+    val=0;
+    # for key, value in result.items(): #check si la somme fait bien 1
+    #     val=val+value;
+    # print(val);
     result = sorted(result.items(), key=operator.itemgetter(0))
     print(result);
 
@@ -122,7 +191,7 @@ if __name__ == '__main__':
     listeA, listeB = split(spam, 10);
     spam1 = sorted(len_email(spam));
     nospam1 = sorted(len_email(nospam));
-    # print(spam1[int(len(spam1)/2)], spam2[int(len(spam2)/2)], spam1);
+    print(spam1[int(len(spam1)/2)], nospam1[int(len(nospam1)/2)], spam1);
     # affiche_history(spam1, spam2);
     apprend_modele(spam1);
-    apprend_modele(nospam1)
+    # apprend_modele(nospam1)
