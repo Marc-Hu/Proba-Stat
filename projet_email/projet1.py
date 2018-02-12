@@ -101,7 +101,7 @@ def first_half(mails, limits, current_value, mails_len):
             limits[0] = 0;
             limits[3]=getIndexLimit3(limits, mails);
         array = mails[limits[2] : limits[3]+1];
-        print(mails[limits[2] : limits[3]+1]);
+        # print(mails[limits[2] : limits[3]+1]);
         result[limits[0]]=len(array)/mails_len;
         if(j<LIMIT):
             limits[0]=limits[0]-GROUPEMENT;
@@ -154,7 +154,7 @@ def second_half(mails, limits, current_value, mails_len):
             limits[2] = getIndexLimit2ForSecondHalf(limits, mails, current_value);
             limits[3] = len(mails)-1;
         array = mails[limits[2] : limits[3]+1];
-        print(mails[limits[2] : limits[3]+1]);
+        # print(mails[limits[2] : limits[3]+1]);
         result[limits[0]]=len(array)/mails_len;
         if j<LIMIT :
             limits[0]=limits[0]+GROUPEMENT;
@@ -165,16 +165,14 @@ def second_half(mails, limits, current_value, mails_len):
         j=j+1;
     return result;
 
-def apprend_modele(mails):
-    mediane_mails = mails[int(len(mails)/2)];
-    current_value = mediane_mails;
+def apprend_modele(mails, mediane_ref):
+    current_value = mediane_ref;
     mails_len = len(mails);
     result = {};
-    limits=[mediane_mails-GROUPEMENT, mediane_mails, 0,mails.index(current_value)-1];
+    limits=[mediane_ref-GROUPEMENT, mediane_ref, 0,mails.index(current_value)-1];
     result = first_half(mails, limits, current_value, mails_len);
-    current_value=mediane_mails;
+    current_value=mediane_ref;
     result2 = second_half(mails, limits, current_value, mails_len);
-    print(result, result2);
     for key, value in result2.items():
         result[key]=value;
     val=0;
@@ -183,6 +181,33 @@ def apprend_modele(mails):
     # print(val);
     result = sorted(result.items(), key=operator.itemgetter(0))
     print(result);
+    return result;
+
+def predit_email(mails, model) : #model[0]=spam; model[1]=nospam
+    result=list();
+    found_position = False;
+    index = 0;
+    for i in range(len(mails)):
+        found_position=False;
+        index=0;
+        while not found_position :
+            # print(index);
+            if model[0][index][0]<mails[i] :
+                index=index+1;
+                if index>=len(model[0]) :
+                    index = len(model[0])-1;
+                    found_position=True;
+            elif model[0][index][0]==mails[i] :
+                found_position=True;
+            elif model[0][index][0]>mails[i] :
+                index=index-1;
+                found_position=True;
+        # print(model[0][index][1], model[1][index][1])
+        if model[0][index][1]>model[1][index][1] :
+            result.append((mails[i], True));
+        else :
+            result.append((mails[i], False));
+    return result;
 
 
 if __name__ == '__main__':
@@ -191,7 +216,11 @@ if __name__ == '__main__':
     listeA, listeB = split(spam, 10);
     spam1 = sorted(len_email(spam));
     nospam1 = sorted(len_email(nospam));
-    print(spam1[int(len(spam1)/2)], nospam1[int(len(nospam1)/2)], spam1);
+    # print(spam1[int(len(spam1)/2)], nospam1[int(len(nospam1)/2)], spam1);
     # affiche_history(spam1, spam2);
-    apprend_modele(spam1);
-    # apprend_modele(nospam1)
+    mediane_ref = spam1[int(len(spam1)/2)];
+    spam_model = apprend_modele(spam1, mediane_ref);
+    noSpam_model = apprend_modele(nospam1, mediane_ref)
+    model = (spam_model, noSpam_model);
+    # print(model);
+    print(predit_email(spam1, model));
