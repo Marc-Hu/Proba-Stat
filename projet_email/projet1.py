@@ -3,9 +3,13 @@ import re
 import matplotlib.pyplot as plt
 import numpy
 import operator
+import nltk
+import time
+import sys
+from nltk.stem import PorterStemmer
 
-GROUPEMENT = 150;
-LIMIT = 5;
+GROUPEMENT = 10;
+LIMIT = 12;
 def read_file(fname):
     """ Lit un fichier compose d'une liste de emails, chacun separe par au moins 2 lignes vides."""
     f = open(fname,'rb')
@@ -45,16 +49,18 @@ def split(liste, x):
 	return listeA, liste;
 
 def len_email(liste):
-	len_liste = [];
-	for i in range (len(liste)):
-		len_liste.append(len(liste[i]));
-	return len_liste;
+    len_liste = [];
+    for i in range (len(liste)):
+        len_liste.append(len(liste[i].split()));
+        # print(liste[i] ,len(liste[i]));
+    return len_liste;
 
 # Fonction qui affiche l'historigramme des mails d'apprentissage spam et nospam
 def affiche_history(spam, nospam):
     plt.legend(loc='upper right');
-    plt.hist(spam, bins=400, normed=1);
-    plt.hist(nospam, bins=400, normed=1, histtype='bar');
+    plt.hist(spam, bins=200, normed=1);
+    plt.hist(nospam, bins=200, normed=1, histtype='bar');
+    plt.gca().set_xlim([0,1500]);
     plt.show();
 
 # Fonction qui va renvoyer la valeur qui limitera la classification
@@ -179,9 +185,7 @@ def second_half(mails, limits, current_value, mails_len):
         j=j+1;
     return result;
 
-# Fonction qui va renvoyer le modele par rapport à une liste des nb de mots dans un mails (spam ou nospam)
-# La valeur mediane_ref permet d'avoir la même valeur de la médiane pour un nombre x de mails spam et y de mais non spam
-def apprend_modele(mails, mediane_ref):
+def get_mail_modele(mails, mediane_ref):
     current_value = mediane_ref;
     mails_len = len(mails);
     result = {}; #Stock des résultat
@@ -198,48 +202,99 @@ def apprend_modele(mails, mediane_ref):
     #     val=val+value;
     # print(val);
     result = sorted(result.items(), key=operator.itemgetter(0)) # On trie
-    print(result);
+    # print(result);
     return result;
 
-# Fonction qui va prédire si un mail est un spam ou non par rapport à un modèle
-def predit_email(mails, model) : #model[0]=spam; model[1]=nospam
+#Fonction apprend modèle qui va renvoyer un tableau de tuple
+#Chaque tuple est représenté par : (nb de mots dans un mail, proba que sa soit un spam)
+def apprend_modele(spam1, nospam1, mediane_ref):
+    spam_mail_model=get_mail_modele(spam1, mediane_ref);
+    no_spam_mail_model=get_mail_modele(nospam1, mediane_ref);
     result=list();
-    found_position = False;
-    index = 0;
-    for i in range(len(mails)): # Pour tous les mails
-        found_position=False;
-        index=0;
-        while not found_position : # On essaye de trouver la position de la valeur dans le modèle
-            # print(index);
-            if model[0][index][0]<mails[i] : # Si la valeur est supérieur à la valeur d'index 'index'
-                index=index+1; # On incrément pour voir la prochaine valeur
-                if index>=len(model[0]) : #Si on a atteint la limite, sa veut dire que la valeur se trouve dans la partie la plus à droite
-                    index = len(model[0])-1;
-                    found_position=True;
-            elif model[0][index][0]==mails[i] :
-                found_position=True;
-            elif model[0][index][0]>mails[i] : # Si la valeur est inférieur alors on se trouve dans l'intervalle (index-1 et index)
-                index=index-1;
-                found_position=True;
-        # print(model[0][index][1], model[1][index][1])
-        if model[0][index][1]>model[1][index][1] : #Si il a plus de chance d'être un spam
-            result.append((mails[i], True)); #Alors on rajoute en tant que spam (True)
-        else :
-            result.append((mails[i], False)); # False sinon
+    print(spam_mail_model, no_spam_mail_model);
+    for i in range (len(spam_mail_model)):
+        result.append((spam_mail_model[i][0], spam_mail_model[i][1]/(spam_mail_model[i][1]+no_spam_mail_model[i][1])));
     return result;
 
+# Fonction qui va prédire pour un modèle donnée, si les mails de test sont des spams ou non (respectivement 1 ou -1) 
+def predit_email(mail, model) : 
+    # print(model);
+    result = list();
+    for i in range(len(mail)):
+        mail_len=len(mail[i].split());
+        for j in range (len(model)): # On cherche dans quel intervalle ce situe le mail actuel
+            if mail_len<model[j][0] :
+                if model[j-1][1]>0.5 : # Si la proba que sa soit un spam est strictement supérieur à 0.5
+                    result.append((i, 1)); # Alors le mail est un spam
+                else :
+                    result.append((i, -1)); # Sinon ce n'est pas un spam
+                break;
+    return result;
+
+# Fonction qui va réduire le nombre de mot dans notre dictionnaire
+def reduce_dictionary(dictionnary):
+    dictionary_leaned={};
+    total_word=0;
+    for key, value in dictionnary.items():
+        if len(key)<10: #Si le mot est pas trop long
+            dictionary_leaned[key]=value;
+            total_word=total_word+value;
+    return dictionary_leaned, total_word;
+
+#Fonction qui va renvoyer un dictionnaire de mots qui sont dans un mail spam
+def get_dictionary(spam, nospam):
+    # print(len(spam), len(nospam));
+    start = time.clock();
+    stemmer = PorterStemmer(); #Stemmer pour prendre la racine d'un mot
+    result={};
+    result_leaned={};
+    for i in range (len(spam)): #Pour tous les mails spams
+        mail = spam[i].split(); #on sépare le mails par ses mots
+        # print(mail);
+        for j in range(len(mail)): #Pour tout ces mots
+            if stemmer.stem(mail[j]) in result : #On incrémente si il est déjà dans le dictionnaire
+                result[stemmer.stem(mail[j])]=result[stemmer.stem(mail[j])]+1;
+            else : #On l'ajoute sinon
+                result[stemmer.stem(mail[j])]=1;
+    for i in range (len(nospam)): #Pour tous les mails non spam d'apprentissage
+        mail = nospam[i].split();
+        for j in range(len(mail)):
+            if stemmer.stem(mail[j]) in result :
+                del result[stemmer.stem(mail[j])]; #Si le mot existe dans le dictionnaire alors on le supprime de la liste
+                # result[stemmer.stem(mail[j])]=result[stemmer.stem(mail[j])]-1;
+                # if result[stemmer.stem(mail[j])]==0 :
+                #     del result[stemmer.stem(mail[j])];
+    end = time.clock();
+    result, total_word=reduce_dictionary(result);
+    print(result , "\nNombre de mots différent dans le dictionnaire : ", len(result), "\nTemps d'exécution de la fonction : ", end-start, "s.\nNombre total de mot dans le dictionnaire : ", total_word);
 
 if __name__ == '__main__':
     spam = get_emails_from_file("spam.txt" )
     nospam = get_emails_from_file("nospam.txt");
-    listeA, listeB = split(spam, 10);
-    spam1 = sorted(len_email(spam));
-    nospam1 = sorted(len_email(nospam));
-    # print(spam1[int(len(spam1)/2)], nospam1[int(len(nospam1)/2)], spam1);
-    # affiche_history(spam1, spam2);
-    mediane_ref = spam1[int(len(spam1)/2)];
-    spam_model = apprend_modele(spam1, mediane_ref);
-    noSpam_model = apprend_modele(nospam1, mediane_ref)
-    model = (spam_model, noSpam_model);
-    print(model);
-    print(predit_email(spam1, model));
+    ######
+    # Mails d'apprentissage
+    ######
+    apprentice_spam, test_spam=split(spam, 80);
+    apprentice_nospam = nospam[0 : len(apprentice_spam)];
+    ######
+    # Mails de test
+    ######
+    test_nospam = nospam[len(apprentice_spam) : len(nospam)];
+
+    spam1 = sorted(len_email(apprentice_spam));
+    nospam1 = sorted(len_email(apprentice_nospam));
+    ######
+    # EXO 2
+    ######
+    if sys.argv[1]=="exo2":
+        mediane_ref = spam1[int(len(spam1)/2)];
+        model = apprend_modele(spam1, nospam1, mediane_ref);
+        print(mediane_ref, model);
+        print("Spam mail test : ", predit_email(test_spam, model), "\n\n\n\n");
+        print("No spam mail test : ", predit_email(test_nospam, model));
+        affiche_history(spam1, nospam1);
+    ######
+    # EXO 3
+    ######
+    if sys.argv[1]=="exo3":
+        get_dictionary(apprentice_spam, apprentice_nospam);
