@@ -5,11 +5,18 @@ import numpy
 import operator
 import nltk
 import time
+import copy
 import sys
 from nltk.stem import PorterStemmer
+import langdetect
+from langdetect import detect
 
 GROUPEMENT = 10;
 LIMIT = 12;
+
+##
+#  Récupérer les mails
+##
 def read_file(fname):
     """ Lit un fichier compose d'une liste de emails, chacun separe par au moins 2 lignes vides."""
     f = open(fname,'rb')
@@ -41,12 +48,19 @@ def get_emails_from_file(f):
     mails = read_file(f)
     return [ s for s in [clean_body(get_body(email.message_from_bytes(x))) for x in mails] if s !=""]
 
+##
+#   Exo 1
+##
 def split(liste, x):
 	listeA=[];
 	leng=len(liste);
 	for i in range(int(leng*x/100)):
 		listeA.append(liste.pop(0));
 	return listeA, liste;
+
+##
+#   Exo 2
+##
 
 def len_email(liste):
     len_liste = [];
@@ -186,12 +200,19 @@ def second_half(mails, limits, current_value, mails_len):
     return result;
 
 def get_mail_modele(mails, mediane_ref):
-    current_value = mediane_ref;
+    current_value = -1;
+    i=0;
+    while current_value==-1:
+        try:
+            res = mails.index(mediane_ref-i) 
+            current_value=mails[res];
+        except :
+            i=i+1;
     mails_len = len(mails);
     result = {}; #Stock des résultat
     # limits[0]=valeur limite gauche (comprise); limits[1]=valeur limite droite (non comprise)
     # limits[2]=indice limite gauche; limits[3]=indice limite droite
-    limits=[mediane_ref-GROUPEMENT, mediane_ref, 0,mails.index(current_value)-1]; #Init les limites
+    limits=[mediane_ref-GROUPEMENT, current_value, 0,mails.index(current_value)-1]; #Init les limites
     result = first_half(mails, limits, current_value, mails_len); #Première partie
     current_value=mediane_ref;
     result2 = second_half(mails, limits, current_value, mails_len); #Deuxième partie
@@ -200,7 +221,7 @@ def get_mail_modele(mails, mediane_ref):
     val=0;
     # for key, value in result.items(): #check si la somme fait bien 1 ou très proche de 1 car il y a des arrondissements lors des calculs des proba
     #     val=val+value;
-    # print(val);
+    # print("test bien à 1", val);
     result = sorted(result.items(), key=operator.itemgetter(0)) # On trie
     # print(result);
     return result;
@@ -211,17 +232,17 @@ def apprend_modele(spam1, nospam1, mediane_ref):
     spam_mail_model=get_mail_modele(spam1, mediane_ref);
     no_spam_mail_model=get_mail_modele(nospam1, mediane_ref);
     result=list();
-    print(spam_mail_model, no_spam_mail_model);
+    # print(spam_mail_model, no_spam_mail_model); #Affiche le groupement
     for i in range (len(spam_mail_model)):
         result.append((spam_mail_model[i][0], spam_mail_model[i][1]/(spam_mail_model[i][1]+no_spam_mail_model[i][1])));
     return result;
 
 # Fonction qui va prédire pour un modèle donnée, si les mails de test sont des spams ou non (respectivement 1 ou -1) 
-def predit_email(mail, model) : 
+def predit_email(mails, model) : 
     # print(model);
     result = list();
-    for i in range(len(mail)):
-        mail_len=len(mail[i].split());
+    for i in range(len(mails)):
+        mail_len=len(mails[i].split());
         for j in range (len(model)): # On cherche dans quel intervalle ce situe le mail actuel
             if mail_len<model[j][0] :
                 if model[j-1][1]>0.5 : # Si la proba que sa soit un spam est strictement supérieur à 0.5
@@ -231,15 +252,69 @@ def predit_email(mail, model) :
                 break;
     return result;
 
+
+def estimation_erreur(spam, nospam):
+    list_x = [50, 60, 70, 80, 90]
+    list_erreur = list()
+    for x in list_x:
+        # print(len(spam), len(nospam));
+        spam_copy=copy.copy(spam); # Copie de la liste des spams pour éviter de perdre la liste initiale
+        nospam_copy=copy.copy(nospam);
+        set_train_spam, set_test_spam = split(spam_copy, x)
+        set_train_nospam, set_test_nospam = split(nospam_copy, x)
+        spam1 = sorted(len_email(set_train_spam));
+        nospam1 = sorted(len_email(set_train_nospam));
+        mediane_ref = spam1[int(len(spam1)/2)]; #Prendre la médiane
+        modele = apprend_modele(spam1, nospam1, mediane_ref)
+        predict_spam = predit_email(set_test_spam, modele)
+        predict_nospam = predit_email(set_test_nospam, modele)
+        cpt = 0
+        for i in range(len(predict_spam)):
+            if(predict_spam[i][1] != 1):
+                cpt += 1
+        for i in range(len(predict_spam)):
+            if(predict_nospam[i][1] != -1):
+                cpt += 1
+        cpt = float(cpt) / (len(predict_spam)+len(predict_nospam))
+        print("Pourcentage d'erreur : ", cpt, " pour : ", x, "pourcent d'exemples");
+        list_erreur.append(cpt)
+    # print(list_erreur)
+    plt.plot(list_x, list_erreur, 'ro')
+    plt.axis([40, 100, 0, 1])
+    plt.xlabel("Pourcentage d'exemples")
+    plt.ylabel("Taux d'erreur")
+    plt.title("Variation du taux d'erreur par rapport à la taille de l'ensemble d'apprentissage")
+    plt.legend()
+    plt.show()
+
+
+##
+#   Exo 3
+##
+
+
 # Fonction qui va réduire le nombre de mot dans notre dictionnaire
 def reduce_dictionary(dictionnary):
-    dictionary_leaned={};
+    dictionary_leaned1={};
+    dictionary_leaned2={};
     total_word=0;
+    i=0;
     for key, value in dictionnary.items():
-        if len(key)<10: #Si le mot est pas trop long
-            dictionary_leaned[key]=value;
+        if value>5 and len(key)<28 and re.search("^[a-zA-Z]*$", key): #Si le mot est pas trop long
+            dictionary_leaned1[key]=value;
             total_word=total_word+value;
-    return dictionary_leaned, total_word;
+    # La boucle en dessous permet de reduire le dictionnaire en prenant que les mots en anglais (mais plus assez de mot dans le dico si on l'applique)
+    #print(detect("5th"));
+    # for key, value in dictionary_leaned1.items():    
+    #     try:
+    #         if detect(key)=="en" :
+    #             print(key, i);
+    #             dictionary_leaned2[key]=value;
+    #             total_word=total_word+value;
+    #     except :
+    #         pass
+    #     i=i+1;
+    return dictionary_leaned1, total_word;
 
 #Fonction qui va renvoyer un dictionnaire de mots qui sont dans un mail spam
 def get_dictionary(spam, nospam):
@@ -252,49 +327,130 @@ def get_dictionary(spam, nospam):
         mail = spam[i].split(); #on sépare le mails par ses mots
         # print(mail);
         for j in range(len(mail)): #Pour tout ces mots
-            if stemmer.stem(mail[j]) in result : #On incrémente si il est déjà dans le dictionnaire
-                result[stemmer.stem(mail[j])]=result[stemmer.stem(mail[j])]+1;
+            if stemmer.stem(mail[j].lower()) in result : #On incrémente si il est déjà dans le dictionnaire
+                result[stemmer.stem(mail[j].lower())]=result[stemmer.stem(mail[j].lower())]+1;
             else : #On l'ajoute sinon
-                result[stemmer.stem(mail[j])]=1;
+                result[stemmer.stem(mail[j].lower())]=1;
     for i in range (len(nospam)): #Pour tous les mails non spam d'apprentissage
         mail = nospam[i].split();
         for j in range(len(mail)):
-            if stemmer.stem(mail[j]) in result :
-                del result[stemmer.stem(mail[j])]; #Si le mot existe dans le dictionnaire alors on le supprime de la liste
+            if stemmer.stem(mail[j].lower()) in result :
+                del result[stemmer.stem(mail[j].lower())]; #Si le mot existe dans le dictionnaire alors on le supprime de la liste
                 # result[stemmer.stem(mail[j])]=result[stemmer.stem(mail[j])]-1;
                 # if result[stemmer.stem(mail[j])]==0 :
                 #     del result[stemmer.stem(mail[j])];
-    end = time.clock();
     result, total_word=reduce_dictionary(result);
+    end = time.clock();
     print(result , "\nNombre de mots différent dans le dictionnaire : ", len(result), "\nTemps d'exécution de la fonction : ", end-start, "s.\nNombre total de mot dans le dictionnaire : ", total_word);
+    return result;
+
+def email_vect(email, collection):
+    stemmer = PorterStemmer();
+    """ Fonction pour représenter un email saus la forme d'un vecteur selon un vocabulaire donné """
+    words_email = [stemmer.stem(word) for word in email.split()] # Utiliser un stemmer pour réduire le nombre de mots
+    binary_rep = {}
+    b = False
+    for key, value in collection.items():
+        for i in words_email:
+            if(key == i):
+                b = True
+                break
+        if(b):
+            binary_rep[key] = 1
+        else:
+            binary_rep[key] = 0
+        b = False
+    return binary_rep
+
+# def occur_word(emails):
+#     result = {}
+#     for email in emails:
+#         # Utilisation d'un stemmer
+#         words_email = [word for word in email.split()]
+#         for word in words_email:
+#             # Ajout des mots de l'email au dictionnaire des résultats
+#             if word not in result:
+#                 result[word] = 1 
+#             # Parcourir les autres emails pour calculer le nombre d'occurrence des mots contenus dans le mail
+#             for mail in emails:
+#                 if email != mail:
+#                     br = email_vect(mail, words_email)
+#                     for w in words_email:
+#                         if br[w] == 1:
+#                             result[word] += 1
+#     return result
+
+def hist_occur(spam, nospam):
+    r = get_dictionary(spam, nospam)
+    # keys = list(r.keys()) #[k for k in r.keys()]
+    # values = list(r.values())
+    # plt.bar(list(range(len(keys))), values, color = 'blue')
+    # plt.xlabel("Mots")
+    # plt.ylabel("Nombre d'apparitions")
+    # plt.title("Nombre d'apparitions des mots dans les emails")
+    # plt.legend()
+    # plt.show()
+    return r;
+
+def predict_email_with_dict(spam, nospam, dictionnaire) :
+    stemmer = PorterStemmer();
+    nb_predict_spam=0;
+    nb_predict_nospam=0;
+    error=[];
+    found_spam=False;
+    for i in range (len(spam)) :
+        words_email = [stemmer.stem(word) for word in spam[i].split()];
+        found_spam=False;
+        for j in range(len(words_email)):
+            for key, value in dictionnaire.items():
+                if key == words_email[j] :
+                    nb_predict_spam=nb_predict_spam+1;
+                    found_spam=True;
+                    break;
+            if found_spam :
+                break;
+    error.append(1-(nb_predict_spam/len(spam)));
+    # nb_predict_spam=0;
+    # found_spam=False;
+    # for i in range (len(nospam)) :
+    #     words_email = [stemmer.stem(word) for word in nospam[i].split()];
+    #     found_spam=False;
+    #     for j in range(len(words_email)):
+    #         for key, value in dictionnaire.items():
+    #             if key == words_email[j] :
+    #                 nb_predict_spam=nb_predict_spam+1;
+    #                 found_spam=True;
+    #                 break;
+    #         if found_spam :
+    #             break;
+    # error.append(nb_predict_spam/len(spam));
+    # print(error);
+    return error;
+
+
+##
+#   Main
+##
+
 
 if __name__ == '__main__':
     spam = get_emails_from_file("spam.txt" )
     nospam = get_emails_from_file("nospam.txt");
     ######
-    # Mails d'apprentissage
-    ######
-    apprentice_spam, test_spam=split(spam, 80);
-    apprentice_nospam = nospam[0 : len(apprentice_spam)];
-    ######
-    # Mails de test
-    ######
-    test_nospam = nospam[len(apprentice_spam) : len(nospam)];
-
-    spam1 = sorted(len_email(apprentice_spam));
-    nospam1 = sorted(len_email(apprentice_nospam));
-    ######
     # EXO 2
     ######
     if sys.argv[1]=="exo2":
-        mediane_ref = spam1[int(len(spam1)/2)];
-        model = apprend_modele(spam1, nospam1, mediane_ref);
-        print(mediane_ref, model);
-        print("Spam mail test : ", predit_email(test_spam, model), "\n\n\n\n");
-        print("No spam mail test : ", predit_email(test_nospam, model));
-        affiche_history(spam1, nospam1);
+        estimation_erreur(spam, nospam);
     ######
     # EXO 3
     ######
     if sys.argv[1]=="exo3":
-        get_dictionary(apprentice_spam, apprentice_nospam);
+        apprentice_spam, test_spam=split(spam, 80);
+        apprentice_nospam, test_nospam = split(nospam, 80);
+        spam1 = sorted(len_email(apprentice_spam));
+        nospam1 = sorted(len_email(apprentice_nospam));
+        dictionnaire = hist_occur(apprentice_spam, apprentice_nospam);
+        print(predict_email_with_dict(test_spam, test_nospam, dictionnaire));
+        print(predict_email_with_dict(apprentice_spam, apprentice_nospam, dictionnaire));
+        # print();
+        # email_vect(test_nospam[0], dictionnaire)
