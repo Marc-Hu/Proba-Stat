@@ -7,6 +7,7 @@ import nltk
 import time
 import copy
 import sys
+import itertools
 from nltk.stem import PorterStemmer
 import langdetect
 from langdetect import detect
@@ -69,13 +70,16 @@ def len_email(liste):
         # print(liste[i] ,len(liste[i]));
     return len_liste;
 
-# Fonction qui affiche l'historigramme des mails d'apprentissage spam et nospam
+# Fonction qui affiche l'histogramme des mails d'apprentissage spam et nospam
 def affiche_history(spam, nospam):
-    plt.legend(loc='upper right');
-    plt.hist(spam, bins=200, normed=1);
-    plt.hist(nospam, bins=200, normed=1, histtype='bar');
-    plt.gca().set_xlim([0,1500]);
-    plt.show();
+    plt.hist(spam, bins=300, color = 'burlywood', label = "Longueur des emails spam", fc=(0, 0, 1, 0.5))
+    plt.hist(nospam, bins=300, color = 'yellow', label = "Longueur des emails nospam", fc=(1, 0, 0, 0.5))
+    plt.xlabel("longueur")
+    plt.ylabel("Nombre d'emails")
+    plt.title('Nombre d\'emails en fonction de la longueur')
+    plt.legend()
+    plt.gca().set_xlim([0,500]);
+    plt.show()
 
 # Fonction qui va renvoyer la valeur qui limitera la classification
 # Fonction pour la première moitié d'une liste de nb de mail
@@ -222,8 +226,6 @@ def get_mail_modele(mails, mediane_ref):
     # for key, value in result.items(): #check si la somme fait bien 1 ou très proche de 1 car il y a des arrondissements lors des calculs des proba
     #     val=val+value;
     # print("test bien à 1", val);
-    result = sorted(result.items(), key=operator.itemgetter(0)) # On trie
-    # print(result);
     return result;
 
 #Fonction apprend modèle qui va renvoyer un tableau de tuple
@@ -264,6 +266,7 @@ def estimation_erreur(spam, nospam):
         set_train_nospam, set_test_nospam = split(nospam_copy, x)
         spam1 = sorted(len_email(set_train_spam));
         nospam1 = sorted(len_email(set_train_nospam));
+        affiche_history(spam1, nospam1)
         mediane_ref = spam1[int(len(spam1)/2)]; #Prendre la médiane
         modele = apprend_modele(spam1, nospam1, mediane_ref)
         predict_spam = predit_email(set_test_spam, modele)
@@ -282,7 +285,7 @@ def estimation_erreur(spam, nospam):
     axis=[40, 100, 0, 1];
     title = "Variation du taux d'erreur par rapport à la taille de l'ensemble d'apprentissage";
     xlabel="Pourcentage d'exemples";
-    affiche_pourcent_erreur(list_x, list_erreur, axis, title, xlabel);
+    # affiche_pourcent_erreur(list_x, list_erreur, axis, title, xlabel);
 
 def affiche_pourcent_erreur(list_x, list_erreur, axis, title, xlabel) :
     plt.plot(list_x, list_erreur, 'ro')
@@ -397,10 +400,6 @@ if __name__ == '__main__':
     ######
     if sys.argv[1]=="exo3":
         estimation_erreur_classifieur(spam, nospam);
-        # print(predict_email_with_dict(test_spam, test_nospam, dictionnaire));
-        # print(predict_email_with_dict(apprentice_spam, apprentice_nospam, dictionnaire));
-        # print();
-        # email_vect(test_nospam[0], dictionnaire)
 
 # def email_vect(email, collection):
 #     stemmer = PorterStemmer();
