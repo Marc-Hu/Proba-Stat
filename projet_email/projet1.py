@@ -3,14 +3,14 @@ import re
 import matplotlib.pyplot as plt
 import numpy
 import operator
-import nltk
+
 import time
 import copy
 import sys
 import itertools
+
+import nltk
 from nltk.stem import PorterStemmer
-import langdetect
-from langdetect import detect
 
 GROUPEMENT = 10;
 LIMIT = 12;
@@ -72,6 +72,7 @@ def len_email(liste):
 
 # Fonction qui affiche l'histogramme des mails d'apprentissage spam et nospam
 def affiche_history(spam, nospam):
+    # print(spam, nospam);
     plt.hist(spam, bins=300, color = 'burlywood', label = "Longueur des emails spam", fc=(0, 0, 1, 0.5))
     plt.hist(nospam, bins=300, color = 'yellow', label = "Longueur des emails nospam", fc=(1, 0, 0, 0.5))
     plt.xlabel("longueur")
@@ -193,6 +194,7 @@ def second_half(mails, limits, current_value, mails_len):
             limits[3] = len(mails)-1;
         array = mails[limits[2] : limits[3]+1];
         # print(mails[limits[2] : limits[3]+1]);
+        # print(result);
         result[limits[0]]=len(array)/mails_len;
         if j<LIMIT :
             limits[0]=limits[0]+GROUPEMENT;
@@ -218,11 +220,13 @@ def get_mail_modele(mails, mediane_ref):
     # limits[2]=indice limite gauche; limits[3]=indice limite droite
     limits=[mediane_ref-GROUPEMENT, current_value, 0,mails.index(current_value)-1]; #Init les limites
     result = first_half(mails, limits, current_value, mails_len); #Première partie
+    # print(result);
     current_value=mediane_ref;
     result2 = second_half(mails, limits, current_value, mails_len); #Deuxième partie
     for key, value in result2.items(): #On va fusionner la deuxième partie avec la première
         result[key]=value;
     val=0;
+
     # for key, value in result.items(): #check si la somme fait bien 1 ou très proche de 1 car il y a des arrondissements lors des calculs des proba
     #     val=val+value;
     # print("test bien à 1", val);
@@ -233,8 +237,10 @@ def get_mail_modele(mails, mediane_ref):
 def apprend_modele(spam1, nospam1, mediane_ref):
     spam_mail_model=get_mail_modele(spam1, mediane_ref);
     no_spam_mail_model=get_mail_modele(nospam1, mediane_ref);
+    spam_mail_model=sorted(spam_mail_model.items());
+    no_spam_mail_model=sorted(no_spam_mail_model.items());
     result=list();
-    # print(spam_mail_model, no_spam_mail_model); #Affiche le groupement
+    # print(spam_mail_model); #Affiche le groupement
     for i in range (len(spam_mail_model)):
         result.append((spam_mail_model[i][0], spam_mail_model[i][1]/(spam_mail_model[i][1]+no_spam_mail_model[i][1])));
     return result;
@@ -307,7 +313,7 @@ def reduce_dictionary(dictionnary, min_val_tab):
     result=list();
     for min_val in min_val_tab :
         for key, value in dictionnary.items():
-            if value>min_val and value<(len(dictionnary)*0.5) and len(key)<28 and re.search("^[a-zA-Z]*$", key): #Si le mot est pas trop long
+            if value>10 and value<(len(dictionnary)/min_val) and len(key)<28 and re.search("^[a-zA-Z]*$", key): #Si le mot est pas trop long
                 dictionary_leaned1[key]=value;
                 total_word=total_word+value;
         result.append((dictionary_leaned1, total_word));
@@ -361,27 +367,118 @@ def classifieur(emails, nb_spam_training, nb_nospam_training, dictionnaire_spam,
             nb_spam=nb_spam+1;
     return (result, nb_spam);
 
+# Fonction qui va estimer les erreurs du classifieur bayésien naïve en réduisant pas à pas la taille du dictionnaire
 def estimation_erreur_classifieur(spam, nospam) :
-    list_x = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+    list_x = [3];
     list_erreur = list();
-    copy_spam = copy.copy(spam);
+    copy_spam = copy.copy(spam); #Faire des copies pour éviter que l'original ne soit écrasé
     copy_nospam = copy.copy(nospam);
-    apprentice_spam, test_spam=split(copy_spam, 80);
+    apprentice_spam, test_spam=split(copy_spam, 80); #Split les mails en mails d'apprentissage et mail de test
     apprentice_nospam, test_nospam = split(copy_nospam, 80);
     nb_spam_training=len(apprentice_spam)/len(apprentice_spam)+len(apprentice_nospam);
     nb_nospam_training=len(apprentice_nospam)/len(apprentice_spam)+len(apprentice_nospam);
-    dictionnaire_spam = get_dictionary(apprentice_spam, list_x);
+    dictionnaire_spam = get_dictionary(apprentice_spam, list_x); #Récupérer le dictionnaire des spams
     dictionnaire_nospam = get_dictionary(apprentice_nospam, list_x);
     for i in range (len(dictionnaire_spam)) :
         result_spam=classifieur(test_spam, nb_spam_training, nb_nospam_training, dictionnaire_spam[i], dictionnaire_nospam[i])
         result_nospam=classifieur(test_nospam, nb_spam_training, nb_nospam_training, dictionnaire_spam[i], dictionnaire_nospam[i])
         erreur = float(len(result_spam[0])-result_spam[1]+result_nospam[1]) / (len(result_spam[0])+len(result_nospam[0]));
         list_erreur.append(erreur);
-    print(list_erreur);
-    axis=[-1, 13, 0, 1];
-    title="Variation du taux d'erreur par rapport à la réduction du dictionnaire"
-    xlabel="Nombre d'occurence minimum pour un mot du dictionnaire"
-    affiche_pourcent_erreur(list_x, list_erreur, axis, title, xlabel);
+    print("Pourcentage d'erreur minimum : "+str(int(list_erreur[0]*100)), "%");
+    # axis=[-1, 13, 0, 1];
+    # title="Variation du taux d'erreur par rapport à la réduction du dictionnaire"
+    # xlabel="Diviseur du nombre de mot dans le dictionnaire"
+    # affiche_pourcent_erreur(list_x, list_erreur, axis, title, xlabel);
+    return dictionnaire_spam, dictionnaire_nospam;
+
+
+##
+#   2.Visualisation
+##
+
+def email_vect(email, collection):
+    stemmer = PorterStemmer();
+    """ Fonction pour représenter un email saus la forme d'un vecteur selon un vocabulaire donné """
+    words_email = [stemmer.stem(word) for word in email.split()] # Utiliser un stemmer pour réduire le nombre de mots
+    binary_rep = {}
+    b = False
+    # print(collection);
+    for key, value in collection.items():
+        for i in words_email:
+            if(key == i):
+                b = True
+                break
+        if(b):
+            binary_rep[key] = 1
+        else:
+            binary_rep[key] = 0
+        b = False
+    return binary_rep
+
+#Fonction qui va vectoriser tous les mails spam et non spam selon un dictionnaire
+def vectorize_emails(spam, nospam):
+    collection_spam, collection_nospam=estimation_erreur_classifieur(spam, nospam);
+    mails_spam, test_mails_spam=split(spam, 80)
+    mails_nospam, test_mails_nospam=split(nospam, 80)
+    spam_email_vec=[];
+    nospam_email_vec=[];
+    for mail in test_mails_spam :
+        spam_email_vec.append(email_vect(mail, collection_spam[0][0]));
+    for mail in test_mails_nospam :
+        nospam_email_vec.append(email_vect(mail, collection_spam[0][0]));
+    # print(spam_email_vec, nospam_email_vec);
+    res_proba_pij1 = proba_pij_qij(spam_email_vec, True); # Récupère les proba pij
+    res_proba_pij2 = proba_pij_qij(nospam_email_vec, True);
+    res_proba_qij1 = proba_pij_qij(spam_email_vec, False); #Récupère les proba qij
+    res_proba_qij2 = proba_pij_qij(nospam_email_vec, False);
+    return res_proba_pij1, res_proba_pij2, res_proba_qij1, res_proba_qij2;
+
+def proba_pij_qij(emails_vectorized, bool_for_pij):
+    result=[];
+    eucli_result=[];
+    j=0;
+    for i in range(len(emails_vectorized)) :
+        while j<len(emails_vectorized)+i:
+            # if(j==i) :
+            #     j=j+1;
+            if(j>=len(emails_vectorized)+i):
+                break;
+            res=scale_squared_euclidian_distance(emails_vectorized[i], emails_vectorized[j%len(emails_vectorized)], len(emails_vectorized), bool_for_pij);
+            res=exp(-res)
+            eucli_result.append(res);
+            print(res, i, j, len(emails_vectorized));
+            j=j+1;
+        result.append(eucli_result[0]/numpy.sum(eucli_result[1:len(eucli_result)]));
+        eucli_result=[];
+        j=i+1;
+    return result;
+
+def scale_squared_euclidian_distance(vect_i, vect_j, len_neighbors, bool_for_pij):
+    # print(vect_i);
+    result=[];
+    res=0.0;
+    for key, value in vect_i.items():
+        res=res+float(value*value-vect_j[key]*vect_j[key])
+    # print(res);
+    res=res*res;
+    res=float(numpy.sqrt(res));
+    # print(res, float(2*(numpy.square(numpy.log(len_neighbors)))));
+    if bool_for_pij :
+        res=res/float(2*(numpy.square(numpy.log(len_neighbors))));
+    return res;
+
+# def kullback_leibler(pij, qij):
+#     j = 0;
+#     KL=[];
+#     result=[];
+#     for i in range (len(pij)):
+#         while j<len(pij) :
+#             if j==i:
+#                 j=j+1;
+#                 if j>=len(pij):
+#                     break;
+#             res=pij[j]*numpy.log(pij[])
+
 ##
 #   Main
 ##
@@ -400,56 +497,12 @@ if __name__ == '__main__':
     ######
     if sys.argv[1]=="exo3":
         estimation_erreur_classifieur(spam, nospam);
-
-# def email_vect(email, collection):
-#     stemmer = PorterStemmer();
-#     """ Fonction pour représenter un email saus la forme d'un vecteur selon un vocabulaire donné """
-#     words_email = [stemmer.stem(word) for word in email.split()] # Utiliser un stemmer pour réduire le nombre de mots
-#     binary_rep = {}
-#     b = False
-#     for key, value in collection.items():
-#         for i in words_email:
-#             if(key == i):
-#                 b = True
-#                 break
-#         if(b):
-#             binary_rep[key] = 1
-#         else:
-#             binary_rep[key] = 0
-#         b = False
-#     return binary_rep
-
-# def predict_email_with_dict(spam, nospam, dictionnaire) :
-#     stemmer = PorterStemmer();
-#     nb_predict_spam=0;
-#     nb_predict_nospam=0;
-#     error=[];
-#     found_spam=False;
-#     for i in range (len(spam)) :
-#         words_email = [stemmer.stem(word) for word in spam[i].split()];
-#         found_spam=False;
-#         for j in range(len(words_email)):
-#             for key, value in dictionnaire.items():
-#                 if key == words_email[j] :
-#                     nb_predict_spam=nb_predict_spam+1;
-#                     found_spam=True;
-#                     break;
-#             if found_spam :
-#                 break;
-#     error.append(1-(nb_predict_spam/len(spam)));
-#     # nb_predict_spam=0;
-#     # found_spam=False;
-#     # for i in range (len(nospam)) :
-#     #     words_email = [stemmer.stem(word) for word in nospam[i].split()];
-#     #     found_spam=False;
-#     #     for j in range(len(words_email)):
-#     #         for key, value in dictionnaire.items():
-#     #             if key == words_email[j] :
-#     #                 nb_predict_spam=nb_predict_spam+1;
-#     #                 found_spam=True;
-#     #                 break;
-#     #         if found_spam :
-#     #             break;
-#     # error.append(nb_predict_spam/len(spam));
-#     # print(error);
-#     return error;
+    ######
+    # EXO VISUALISATION
+    ######
+    if sys.argv[1]=="visualisation" :
+        start = time.clock();
+        res = vectorize_emails(spam, nospam);
+        for r in res :
+            print(r, "\n");
+        print(time.clock()-start);
