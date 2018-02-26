@@ -264,6 +264,7 @@ def predit_email(mails, model) :
 def estimation_erreur(spam, nospam):
     list_x = [50, 60, 70, 80, 90]
     list_erreur = list()
+    percentage_error=[];
     for x in list_x:
         # print(len(spam), len(nospam));
         spam_copy=copy.copy(spam); # Copie de la liste des spams pour éviter de perdre la liste initiale
@@ -272,7 +273,7 @@ def estimation_erreur(spam, nospam):
         set_train_nospam, set_test_nospam = split(nospam_copy, x)
         spam1 = sorted(len_email(set_train_spam));
         nospam1 = sorted(len_email(set_train_nospam));
-        affiche_history(spam1, nospam1)
+        # affiche_history(spam1, nospam1)
         mediane_ref = spam1[int(len(spam1)/2)]; #Prendre la médiane
         modele = apprend_modele(spam1, nospam1, mediane_ref)
         predict_spam = predit_email(set_test_spam, modele)
@@ -285,6 +286,7 @@ def estimation_erreur(spam, nospam):
             if(predict_nospam[i][1] != -1):
                 cpt += 1
         cpt = float(cpt) / (len(predict_spam)+len(predict_nospam))
+        percentage_error.append(cpt);
         print("Pourcentage d'erreur : ", cpt, " pour : ", x, "pourcent d'exemples");
         list_erreur.append(cpt)
     # print(list_erreur)
@@ -292,6 +294,7 @@ def estimation_erreur(spam, nospam):
     title = "Variation du taux d'erreur par rapport à la taille de l'ensemble d'apprentissage";
     xlabel="Pourcentage d'exemples";
     # affiche_pourcent_erreur(list_x, list_erreur, axis, title, xlabel);
+    return percentage_error;
 
 def affiche_pourcent_erreur(list_x, list_erreur, axis, title, xlabel) :
     plt.plot(list_x, list_erreur, 'ro')
@@ -415,6 +418,14 @@ def email_vect(email, collection):
         b = False
     return binary_rep
 
+def random_y(emails, dictionnary):
+    result={};
+    for key, value in dictionnary.items():
+        result[key]=numpy.random.normal(0, 0.5);
+    # for i in range (len(emails)):
+    #     result.append(numpy.random.normal(0, 0.5));
+    return result;
+
 #Fonction qui va vectoriser tous les mails spam et non spam selon un dictionnaire
 def vectorize_emails(spam, nospam):
     collection_spam, collection_nospam=estimation_erreur_classifieur(spam, nospam);
@@ -422,15 +433,24 @@ def vectorize_emails(spam, nospam):
     mails_nospam, test_mails_nospam=split(nospam, 80)
     spam_email_vec=[];
     nospam_email_vec=[];
+    random_y1=[];
+    random_y2=[];
     for mail in test_mails_spam :
         spam_email_vec.append(email_vect(mail, collection_spam[0][0]));
+        random_y1.append(random_y(mail, collection_spam[0][0]));
     for mail in test_mails_nospam :
         nospam_email_vec.append(email_vect(mail, collection_spam[0][0]));
+        random_y2.append(random_y(mail, collection_spam[0][0]));
     # print(spam_email_vec, nospam_email_vec);
+    print("pij1");
     res_proba_pij1 = proba_pij_qij(spam_email_vec, True); # Récupère les proba pij
+    print("pij2");
     res_proba_pij2 = proba_pij_qij(nospam_email_vec, True);
-    res_proba_qij1 = proba_pij_qij(spam_email_vec, False); #Récupère les proba qij
-    res_proba_qij2 = proba_pij_qij(nospam_email_vec, False);
+    # random_y1 = [random_y(spam_email_vec, collection_spam[0][0])];
+    # print(random_y1);
+    # random_y2 = [random_y(nospam_email_vec, collection_spam[0][0])];
+    res_proba_qij1 = proba_pij_qij(random_y1, False); #Récupère les proba qij
+    res_proba_qij2 = proba_pij_qij(random_y2, False);
     return res_proba_pij1, res_proba_pij2, res_proba_qij1, res_proba_qij2;
 
 def proba_pij_qij(emails_vectorized, bool_for_pij):
@@ -444,9 +464,9 @@ def proba_pij_qij(emails_vectorized, bool_for_pij):
             if(j>=len(emails_vectorized)+i):
                 break;
             res=scale_squared_euclidian_distance(emails_vectorized[i], emails_vectorized[j%len(emails_vectorized)], len(emails_vectorized), bool_for_pij);
-            res=exp(-res)
+            res=numpy.exp(-res)
             eucli_result.append(res);
-            print(res, i, j, len(emails_vectorized));
+            # print(res, i, j, len(emails_vectorized));
             j=j+1;
         result.append(eucli_result[0]/numpy.sum(eucli_result[1:len(eucli_result)]));
         eucli_result=[];
@@ -491,7 +511,8 @@ if __name__ == '__main__':
     # EXO 2
     ######
     if sys.argv[1]=="exo2":
-        estimation_erreur(spam, nospam);
+        result=estimation_erreur(spam, nospam);
+        print(numpy.sum(result)/len(result));
     ######
     # EXO 3
     ######
@@ -505,4 +526,4 @@ if __name__ == '__main__':
         res = vectorize_emails(spam, nospam);
         for r in res :
             print(r, "\n");
-        print(time.clock()-start);
+        print(time.clock()-start, "secondes.");
