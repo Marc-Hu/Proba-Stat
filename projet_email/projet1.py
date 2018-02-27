@@ -1,7 +1,7 @@
 import email
 import re
 import matplotlib.pyplot as plt
-import numpy
+import numpy as np
 import operator
 
 import time
@@ -316,7 +316,7 @@ def reduce_dictionary(dictionnary, min_val_tab):
     result=list();
     for min_val in min_val_tab :
         for key, value in dictionnary.items():
-            if value>10 and value<(len(dictionnary)/min_val) and len(key)<28 and re.search("^[a-zA-Z]*$", key): #Si le mot est pas trop long
+            if value>min_val and value<300 and len(key)<28 and re.search("^[a-zA-Z]*$", key): #Si le mot est pas trop long
                 dictionary_leaned1[key]=value;
                 total_word=total_word+value;
         result.append((dictionary_leaned1, total_word));
@@ -349,7 +349,7 @@ def get_dictionary(mails, min_val_tab):
 def occu_word(word, dictionnaire):
     stemmer = PorterStemmer();
     if stemmer.stem(word) in dictionnaire[0] :
-        res = numpy.log(dictionnaire[0][stemmer.stem(word)]/float(dictionnaire[1]));
+        res = np.log(dictionnaire[0][stemmer.stem(word)]/float(dictionnaire[1]));
         return res;
     return 0;
 
@@ -372,7 +372,8 @@ def classifieur(emails, nb_spam_training, nb_nospam_training, dictionnaire_spam,
 
 # Fonction qui va estimer les erreurs du classifieur bayésien naïve en réduisant pas à pas la taille du dictionnaire
 def estimation_erreur_classifieur(spam, nospam) :
-    list_x = [3];
+    list_x = [10];
+    list_nb_word=[];
     list_erreur = list();
     copy_spam = copy.copy(spam); #Faire des copies pour éviter que l'original ne soit écrasé
     copy_nospam = copy.copy(nospam);
@@ -387,23 +388,74 @@ def estimation_erreur_classifieur(spam, nospam) :
         result_nospam=classifieur(test_nospam, nb_spam_training, nb_nospam_training, dictionnaire_spam[i], dictionnaire_nospam[i])
         erreur = float(len(result_spam[0])-result_spam[1]+result_nospam[1]) / (len(result_spam[0])+len(result_nospam[0]));
         list_erreur.append(erreur);
-    print("Pourcentage d'erreur minimum : "+str(int(list_erreur[0]*100)), "%");
-    # axis=[-1, 13, 0, 1];
+        list_nb_word.append(len(dictionnaire_spam[i][0]))
+        # print(list_nb_word);
+    # print("Pourcentage d'erreur minimum : "+str(int(list_erreur[0]*100)), "%");
+    # axis=[1500, 9000, 0, 1];
     # title="Variation du taux d'erreur par rapport à la réduction du dictionnaire"
-    # xlabel="Diviseur du nombre de mot dans le dictionnaire"
-    # affiche_pourcent_erreur(list_x, list_erreur, axis, title, xlabel);
+    # xlabel="Nombre de mot dans le dictionnaire"
+    # affiche_pourcent_erreur(list_nb_word, list_erreur, axis, title, xlabel);
     return dictionnaire_spam, dictionnaire_nospam;
-
 
 ##
 #   2.Visualisation
 ##
 
+# #Calculer la scale_distance euclidienne entre l'indiv et le reste de la population
+# def scale_distance_Euclidienne(indiv , Data, sigma):
+#     return np.divide(np.sqrt(np.sum((indiv-Data)**2, axis=1)),2*sigma)
+
+# #Calculer la distance euclidienne entre l'indiv et le reste de la population
+# def distance_Euclidienne(indiv , Data):
+#     return np.sqrt(np.sum((indiv-Data)**2, axis=1))
+
+# #calculer la matrice corespendant à la formule exp -d(xi,xj)/2*sigma
+# def calcul_matrice_Distance_Exp(data, sigma):
+#     nbE = data.shape[0]
+#     #Calculer les distances entre les individus 
+#     MDistance = np.zeros(shape=(nbE,nbE))
+#     for i, indiv in zip(range(0,nbE-1,1),data): #le dernier individu on ne le prend pas en considération
+#         RowDi = scale_distance_Euclidienne(indiv, data[i+1:nbE,:], sigma)
+#         #print(RowDi)
+#         MDistance[i,(i+1):nbE] = RowDi
+#         MDistance[(i+1):nbE, i] = RowDi
+#     return np.exp((-1)*MDistance)
+
+# def calcul_Pij(MDistance):
+#     nbE = MDistance.shape[0]
+#     Pij = np.zeros(shape=(nbE,nbE))
+#     for i in range(0,nbE,1):
+#         for j in range(0,nbE,1):
+#             Pij[i,j] = MDistance[i,j] / (np.sum(MDistance[i,:])-MDistance[i,i])
+#     return Pij
+
+# def calcul_Qij(MDistanceY):
+#     nbE = MDistanceY.shape[0]
+#     Qij = np.zeros(shape=(nbE,nbE))
+#     for i in range(0,nbE,1):
+#         for j in range(0,nbE,1):
+#             Qij[i,j] = MDistanceY[i,j] / (np.sum(MDistanceY[i,:])-MDistanceY[i,i])
+#     return Qij
+
+
+def calcul_GradiantY(Y, Pij, Qij, composante):
+    Vy = np.zeros(shape=(Y.shape[0],2))
+    for i in range(0, Y.shape[0]):
+        somme=0
+        somme2=0
+        for j in range(0, Y.shape[0]):
+            somme = somme + (Y[i,0] - Y[j,0])*(Pij[i,j]-Qij[i,j]+Pij[j,i]-Qij[j,i])
+            somme2 = somme2 + (Y[i,1] - Y[j,1])*(Pij[i,j]-Qij[i,j]+Pij[j,i]-Qij[j,i])
+        Vy[i,0]=2*somme
+        Vy[i,1]=2*somme2
+    return Vy
+
+
 def email_vect(email, collection):
     stemmer = PorterStemmer();
     """ Fonction pour représenter un email saus la forme d'un vecteur selon un vocabulaire donné """
     words_email = [stemmer.stem(word) for word in email.split()] # Utiliser un stemmer pour réduire le nombre de mots
-    binary_rep = {}
+    binary_rep = [];
     b = False
     # print(collection);
     for key, value in collection.items():
@@ -412,18 +464,18 @@ def email_vect(email, collection):
                 b = True
                 break
         if(b):
-            binary_rep[key] = 1
+            binary_rep.append(1)
         else:
-            binary_rep[key] = 0
+            binary_rep.append(0)
         b = False
     return binary_rep
 
 def random_y(emails, dictionnary):
-    result={};
+    result=[];
     for key, value in dictionnary.items():
-        result[key]=numpy.random.normal(0, 0.5);
+        result.append(np.random.normal(0, 0.5));
     # for i in range (len(emails)):
-    #     result.append(numpy.random.normal(0, 0.5));
+    #     result.append(np.random.normal(0, 0.5));
     return result;
 
 #Fonction qui va vectoriser tous les mails spam et non spam selon un dictionnaire
@@ -431,30 +483,39 @@ def vectorize_emails(spam, nospam):
     collection_spam, collection_nospam=estimation_erreur_classifieur(spam, nospam);
     mails_spam, test_mails_spam=split(spam, 80)
     mails_nospam, test_mails_nospam=split(nospam, 80)
+    test_mails_nospam=test_mails_nospam[0:len(test_mails_spam)]
     spam_email_vec=[];
     nospam_email_vec=[];
     random_y1=[];
     random_y2=[];
+    y = np.random.normal(0,0.5, size=(len(test_mails_spam),2))
     for mail in test_mails_spam :
-        spam_email_vec.append(email_vect(mail, collection_spam[0][0]));
-        random_y1.append(random_y(mail, collection_spam[0][0]));
+        spam_email_vec.append(email_vect(mail, collection_nospam[0][0]));
+        random_y1.append(random_y(mail, collection_nospam[0][0]));
     for mail in test_mails_nospam :
-        nospam_email_vec.append(email_vect(mail, collection_spam[0][0]));
-        random_y2.append(random_y(mail, collection_spam[0][0]));
+        nospam_email_vec.append(email_vect(mail, collection_nospam[0][0]));
+        random_y2.append(random_y(mail, collection_nospam[0][0]));
     # print(spam_email_vec, nospam_email_vec);
     print("pij1");
+    # print(spam_email_vec);
     res_proba_pij1 = proba_pij_qij(spam_email_vec, True); # Récupère les proba pij
+    # print(res_proba_pij1);
     print("pij2");
     res_proba_pij2 = proba_pij_qij(nospam_email_vec, True);
     # random_y1 = [random_y(spam_email_vec, collection_spam[0][0])];
     # print(random_y1);
     # random_y2 = [random_y(nospam_email_vec, collection_spam[0][0])];
+    print("qij1");
     res_proba_qij1 = proba_pij_qij(random_y1, False); #Récupère les proba qij
+    print("qij2");
     res_proba_qij2 = proba_pij_qij(random_y2, False);
-    return res_proba_pij1, res_proba_pij2, res_proba_qij1, res_proba_qij2;
+    # print(res_proba_qij1)
+    return res_proba_pij1, res_proba_pij2, res_proba_qij1, res_proba_qij2, y;
 
 def proba_pij_qij(emails_vectorized, bool_for_pij):
-    result=[];
+    result=np.empty((len(emails_vectorized), len(emails_vectorized)));
+    # result[0, 0]=0.01
+    # print(result);
     eucli_result=[];
     j=0;
     for i in range(len(emails_vectorized)) :
@@ -464,40 +525,51 @@ def proba_pij_qij(emails_vectorized, bool_for_pij):
             if(j>=len(emails_vectorized)+i):
                 break;
             res=scale_squared_euclidian_distance(emails_vectorized[i], emails_vectorized[j%len(emails_vectorized)], len(emails_vectorized), bool_for_pij);
-            res=numpy.exp(-res)
+            res=np.exp(-res)
             eucli_result.append(res);
             # print(res, i, j, len(emails_vectorized));
             j=j+1;
-        result.append(eucli_result[0]/numpy.sum(eucli_result[1:len(eucli_result)]));
+        for k in range(len(eucli_result)):
+            # print(np.sum(eucli_result[0 : len(eucli_result)])-eucli_result[k])
+            result[i, k]=eucli_result[k]/(np.sum(eucli_result[0 : len(eucli_result)])-eucli_result[k])
+        # result.append(eucli_result[0]/np.sum(eucli_result[1:len(eucli_result)]));
         eucli_result=[];
         j=i+1;
+    # print(result);
     return result;
 
 def scale_squared_euclidian_distance(vect_i, vect_j, len_neighbors, bool_for_pij):
     # print(vect_i);
     result=[];
     res=0.0;
-    for key, value in vect_i.items():
-        res=res+float(value*value-vect_j[key]*vect_j[key])
+    for i in range (len(vect_i)):
+        res=res+float(vect_i[i]*vect_i[i]-vect_j[i]*vect_j[i])
     # print(res);
     res=res*res;
-    res=float(numpy.sqrt(res));
-    # print(res, float(2*(numpy.square(numpy.log(len_neighbors)))));
+    res=float(np.sqrt(res));
+    # print(res, float(2*(np.square(np.log(len_neighbors)))));
     if bool_for_pij :
-        res=res/float(2*(numpy.square(numpy.log(len_neighbors))));
+        res=res/float(2*(np.square(np.log(len_neighbors))));
     return res;
 
-# def kullback_leibler(pij, qij):
-#     j = 0;
-#     KL=[];
-#     result=[];
-#     for i in range (len(pij)):
-#         while j<len(pij) :
-#             if j==i:
-#                 j=j+1;
-#                 if j>=len(pij):
-#                     break;
-#             res=pij[j]*numpy.log(pij[])
+def sne_algo(spam, nospam):
+    result = vectorize_emails(spam, nospam); # Result = [pij1, pij2, qij1, qij2, y]
+    print(result);
+
+    for i in range(0,25):
+        y=calcul_GradiantY(result[4],result[0],result[2],0)
+        x=calcul_GradiantY(result[4],result[1],result[3],0)
+
+    print('Y apres 100 intération')
+    # #PS : pour le plot et l'affichage a la fin une fois que vous avez les Y labelisez les selon le label des données initiales
+    # #genre par exemple si vous avez 100mail non spam il corresponde aux 100 premier ligne de Y et vice versa
+    print(y)
+    plt.scatter(y[:,0], y[:,1], c = 'red');
+    plt.scatter(x[:,0], x[:,1], c = 'blue');
+    plt.legend(["spam","nospam"])
+    plt.title("Nuage de points pour le dictionnaire des non spams")
+    plt.show();
+
 
 ##
 #   Main
@@ -512,7 +584,7 @@ if __name__ == '__main__':
     ######
     if sys.argv[1]=="exo2":
         result=estimation_erreur(spam, nospam);
-        print(numpy.sum(result)/len(result));
+        print(np.sum(result)/len(result));
     ######
     # EXO 3
     ######
@@ -521,9 +593,9 @@ if __name__ == '__main__':
     ######
     # EXO VISUALISATION
     ######
-    if sys.argv[1]=="visualisation" :
+    if sys.argv[1]=="sne" :
         start = time.clock();
-        res = vectorize_emails(spam, nospam);
-        for r in res :
-            print(r, "\n");
+        res = sne_algo(spam, nospam);
+        # for r in res :
+        #     print(r, "\n");
         print(time.clock()-start, "secondes.");
