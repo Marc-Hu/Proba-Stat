@@ -1,5 +1,6 @@
 import numpy as np
 import copy as cp
+import matplotlib.pyplot as plt
 
 #Fonction qui va récupérer les données d'un fichier
 def read_file(fname):
@@ -76,7 +77,8 @@ def fonction_2(wi_a):
 	for i in range(trois_position_conserve.shape[1]):
 		trois_position_conserve[0][i]=array_acide[np.argmax(copy_si)] #On récupère l'acide la plus grande
 		copy_si[0][np.argmax(copy_si)]=0;#On va mettre l'acide la plus grande à 0 afin de récupérer le deuxième plus grand
-	print(trois_position_conserve)
+	print(trois_position_conserve);
+	affiche_entropie(si_a, array_acide)
 
 #Fonction qui calcul wi_a
 def si(wi_a):
@@ -90,6 +92,12 @@ def si(wi_a):
 		result[0][i]=np.log2(q)+res*np.log2(res)# Formule #4
 	# print(result)
 	return result
+
+def affiche_entropie(si_a, axis):
+	x=np.arange(21);
+	plt.xticks(x, axis)
+	plt.plot(x,si_a[0])
+	plt.show()
 
 if __name__ == '__main__':
 	train=read_file("Dtrain.txt")
