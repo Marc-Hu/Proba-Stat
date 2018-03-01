@@ -38,16 +38,21 @@ def fonction_1(matrix_train):
 #Fonction ni_a qui va initialiser la matrice ni_a
 def ni_a(matrix_train):
 	j=0;
+	test=0
 	#Variable qui permet de trouver facilement l'indice à laquel se trouve un acide aminé
 	array_acide=['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y', '-']
 	acide=np.array(['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y', '-'])
 	result=np.zeros((48, len(acide))) #Initialise une matrice de 48 par 21
-	for i in range(len(matrix_train[0])):
+	
+	for i in range(matrix_train.shape[1]):
 		unique, counts = np.unique(matrix_train[:,i], return_counts=True) # Compte le nombre d'acide i sur une colonne
 		res=dict(zip(unique, counts)) #On a un dictionnaire key, value où key est l'acide et value le nombre d'acide key dans la colonne
+		print(res);
 		for key, value in res.items(): #Pour tous les acides trouvés
 			j=array_acide.index(key.decode('utf-8'));#On récupère l'indice ou ce trouve la clé
 			result[i][j]=value#Et on ajoute sa valeur dans le resultat
+			test=test+value
+	print(test/48)
 	return result;
 
 # Fonction qui va calculer wi_a
@@ -67,36 +72,38 @@ def wi_a(matrix_ni_a, M):
 
 #Fonction qui va récupérer si_a et les trois positions les plus conservé
 def fonction_2(wi_a):
-	array_acide=['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y', '-']
 	si_a=si(wi_a)
 	copy_si=cp.copy(si_a) #On fait une copie de si car on va prendre les valeurs max donc à chaque val max on va mettre à 0 la précédente valeur max
 	# print(np.sort(si_a))
-	trois_position_conserve=np.chararray((1, 3))#On initialise notre matrice qui va contenir les 3 acides les plus grands
-	trois_position_conserve[:] = '*'
+	trois_position_conserve=np.zeros((1, 3))#On initialise notre matrice qui va contenir les 3 acides les plus grands
 	# print(trois_position_conserve.shape, copy_si)
+	position=np.argsort(copy_si[0])[::-1]
+	print(position)
 	for i in range(trois_position_conserve.shape[1]):
-		trois_position_conserve[0][i]=array_acide[np.argmax(copy_si)] #On récupère l'acide la plus grande
-		copy_si[0][np.argmax(copy_si)]=0;#On va mettre l'acide la plus grande à 0 afin de récupérer le deuxième plus grand
-	print(trois_position_conserve);
-	affiche_entropie(si_a, array_acide)
+		trois_position_conserve[0][i]=position[i];
+	print(si_a, trois_position_conserve);
+	affiche_entropie(si_a)
 
 #Fonction qui calcul wi_a
 def si(wi_a):
 	# print(wi_a.shape[1])
-	q=wi_a.shape[1]
+	q=wi_a.shape[0]
 	result=np.zeros((1, q))# On initialise la matrice de taille 1 par le nb d'acide
+	vecteur = np.zeros((1, 48))
 	# print(wi_a)
 	for i in range(q):#Pour chaque acide 
-		res=np.sum(wi_a[:,i])#On va faire la somme de la colonne i
+		for j in range(21):
+			vecteur[0][i] = vecteur[0][i] + wi_a[i][j] * np.log2(wi_a[i][j])
+		vecteur[0][i] = vecteur[0][i] + np.log2(21)
+		#res=np.sum(wi_a[i,:])#On va faire la somme de la colonne i
 		# print(res)
-		result[0][i]=np.log2(q)+res*np.log2(res)# Formule #4
-	# print(result)
-	return result
+		#result[0][i]=np.log2(q)+res*np.log2(res)# Formule #4
+	print(vecteur)
+	return vecteur
 
-def affiche_entropie(si_a, axis):
-	x=np.arange(21);
-	plt.xticks(x, axis)
-	plt.plot(x,si_a[0])
+def affiche_entropie(si_a):
+	x=np.arange(48);
+	plt.plot(si_a[0])
 	plt.show()
 
 if __name__ == '__main__':
