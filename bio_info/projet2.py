@@ -26,6 +26,10 @@ def matrix_bio(train):
 	return char_array;
 
 ##
+#	I. Données
+##
+
+##
 #	Fonction 1
 ##
 
@@ -49,6 +53,7 @@ def ni_a(matrix_train):
 		res=dict(zip(unique, counts)) #On a un dictionnaire key, value où key est l'acide et value le nombre d'acide key dans la colonne
 		# print(res);
 		for key, value in res.items(): #Pour tous les acides trouvés
+			# print(key)
 			j=ARRAY_ACIDE.index(key.decode('utf-8'));#On récupère l'indice ou ce trouve la clé
 			result[i][j]=value#Et on ajoute sa valeur dans le resultat
 			test=test+value
@@ -63,7 +68,7 @@ def wi_a(matrix_ni_a, M):
 	for i in range (result_shape[0]):
 		for j in range(result_shape[1]):
 			result[i][j]=(matrix_ni_a[i][j]+1)/(M+result_shape[1]) #Formule #3
-	print("Wo(-) : " ,result[0][20]);
+	# print("Wo(-) : " ,result[0][20]);
 	return result;
 
 ##
@@ -108,6 +113,7 @@ def affiche_entropie(si_a):
 	plt.plot(si_a[0])
 	plt.show()
 
+#Fonction qui renvoit les 3 acides les plus conservé
 def trois_acide_plus_conserve(wi_a, trois_position_conserve):
 	result=[]
 	for i in range(3):
@@ -152,11 +158,81 @@ def function4(matrix_test, wi_a):
 	print(result)
 	plt.plot(result)
 	plt.show()
-	
+
+##
+#	II.Co-écolution de résidues en contact
+##
+
+def fonct_1(matrix_train):
+	return fonction_1(matrix_train)[1]
+
+#Fonction qui calcule le nombre d'occurence nij
+def nij(matrix_train, matrice_paire_acide, matrice_paire_position):
+	result=np.zeros((len(matrice_paire_acide), len(matrice_paire_position)))
+	# print(result.shape)
+	for i in range(result.shape[1]):
+		for j in range(matrix_train.shape[0]):
+			# print(matrix_train[j][matrice_paire_position[i][0]])
+			acid_a=matrix_train[j][matrice_paire_position[i][0]].decode("utf-8")
+			acid_b=matrix_train[j][matrice_paire_position[i][1]].decode("utf-8")
+			if ARRAY_ACIDE.index(acid_a)>ARRAY_ACIDE.index(acid_b):
+				sub=acid_a
+				acid_a=acid_b
+				acid_b=sub
+			index=matrice_paire_acide.index(acid_a+acid_b)
+			# print(acid_a, acid_b, index, i)
+			result[index][i]=result[index][i]+1
+	print(result)
+	return result
+
+#Fonction qui calcul le poids wij
+def wij(nij, M):
+	result=np.zeros(nij.shape)
+	for i in range(result.shape[0]):
+		for j in range(result.shape[1]):
+			#Application de la formule 11
+			result[i][j]=(nij[i][j]+(1/nij.shape[1]))/(M+nij.shape[1])
+	# print(result)
+	return result
+
+#Fonction qui calcule le nombre d'occurence nij et le poids nij
+def fonct_2(matrix_train):
+	matrice_paire_acide=[]
+	for i in range(len(ARRAY_ACIDE)): #On construit le tableau des paires d'acide
+		for j in range(i, len(ARRAY_ACIDE)):
+			res=ARRAY_ACIDE[i]+ARRAY_ACIDE[j]
+			matrice_paire_acide.append(res)
+	matrice_paire_position=[]
+	for i in range(47):	#On construit le tableau des paires de position
+		for j in range(i+1, 48):
+			matrice_paire_position.append((i, j))
+	nij_result=nij(matrix_train, matrice_paire_acide, matrice_paire_position)
+	print(matrix_train.shape)
+	wij_result=wij(nij_result, matrix_train.shape[0])
+	return nij_result, wij_result, matrice_paire_acide, matrice_paire_position
+
+def fonct_3(wij, wi_a, matrice_paire_acide, matrice_paire_position):
+	result=np.zeros((1, len(matrice_paire_position)))
+	print("test", wi_a.shape)
+	for i in range(len(matrice_paire_position)): #On parcours toutes les colonnes
+		pos_i=matrice_paire_position[i][0] #On récupère la position i
+		pos_j=matrice_paire_position[i][1] #On récupère la position j
+		# print(pos_a,'+', pos_b)
+		for j in range(wij.shape[0]):	#On parcours toutes les lignes
+			pos_a=ARRAY_ACIDE.index(matrice_paire_acide[j][0]) #On récupère la position de l'acide a (index)
+			pos_b=ARRAY_ACIDE.index(matrice_paire_acide[j][1]) #On récupère la position de l'acide b (index)
+			# print(pos_a,' ',pos_b)
+			result[0][i]=result[0][i]+(wij[j][i]*np.log2(wij[j][i]/(wi_a[pos_i][pos_a]*wi_a[pos_j][pos_b])))
+	print(result[0][0])
+	return result
+
 if __name__ == '__main__':
 	train=read_file("Dtrain.txt")
 	matrix_train=matrix_bio(train)
-	res_fonction_1=fonction_1(matrix_train)
-	# res_fonction_2=fonction_2(res_fonction_1[1])
-	matrix_test=getMatrix_test()
-	function4(matrix_test, res_fonction_1[1])
+	# res_fonction_1=fonction_1(matrix_train)
+	# # res_fonction_2=fonction_2(res_fonction_1[1])
+	# matrix_test=getMatrix_test()
+	# function4(matrix_test, res_fonction_1[1])
+	wi_a=fonct_1(matrix_train)
+	nij, wij, matrice_paire_acide, matrice_paire_position=fonct_2(matrix_train)
+	fonct_3(wij, wi_a, matrice_paire_acide, matrice_paire_position)
