@@ -175,14 +175,14 @@ def nij(matrix_train, matrice_paire_acide, matrice_paire_position):
 			# print(matrix_train[j][matrice_paire_position[i][0]])
 			acid_a=matrix_train[j][matrice_paire_position[i][0]].decode("utf-8")
 			acid_b=matrix_train[j][matrice_paire_position[i][1]].decode("utf-8")
-			if ARRAY_ACIDE.index(acid_a)>ARRAY_ACIDE.index(acid_b):
-				sub=acid_a
-				acid_a=acid_b
-				acid_b=sub
+			# if ARRAY_ACIDE.index(acid_a)>ARRAY_ACIDE.index(acid_b):
+			# 	sub=acid_a
+			# 	acid_a=acid_b
+			# 	acid_b=sub
 			index=matrice_paire_acide.index(acid_a+acid_b)
 			# print(acid_a, acid_b, index, i)
 			result[index][i]=result[index][i]+1
-	print(result)
+	# print(result)
 	return result
 
 #Fonction qui calcul le poids wij
@@ -191,7 +191,7 @@ def wij(nij, M):
 	for i in range(result.shape[0]):
 		for j in range(result.shape[1]):
 			#Application de la formule 11
-			result[i][j]=(nij[i][j]+(1/nij.shape[1]))/(M+nij.shape[1])
+			result[i][j]=(nij[i][j]+(1/21))/(M+21)
 	# print(result)
 	return result
 
@@ -199,7 +199,7 @@ def wij(nij, M):
 def fonct_2(matrix_train):
 	matrice_paire_acide=[]
 	for i in range(len(ARRAY_ACIDE)): #On construit le tableau des paires d'acide
-		for j in range(i, len(ARRAY_ACIDE)):
+		for j in range(len(ARRAY_ACIDE)):
 			res=ARRAY_ACIDE[i]+ARRAY_ACIDE[j]
 			matrice_paire_acide.append(res)
 	matrice_paire_position=[]
@@ -207,13 +207,13 @@ def fonct_2(matrix_train):
 		for j in range(i+1, 48):
 			matrice_paire_position.append((i, j))
 	nij_result=nij(matrix_train, matrice_paire_acide, matrice_paire_position)
-	print(matrix_train.shape)
+	# print(matrix_train.shape)
 	wij_result=wij(nij_result, matrix_train.shape[0])
 	return nij_result, wij_result, matrice_paire_acide, matrice_paire_position
 
 def fonct_3(wij, wi_a, matrice_paire_acide, matrice_paire_position):
 	result=np.zeros((1, len(matrice_paire_position)))
-	print("test", wi_a.shape)
+	# print("test", wi_a.shape)
 	for i in range(len(matrice_paire_position)): #On parcours toutes les colonnes
 		pos_i=matrice_paire_position[i][0] #On récupère la position i
 		pos_j=matrice_paire_position[i][1] #On récupère la position j
@@ -223,8 +223,55 @@ def fonct_3(wij, wi_a, matrice_paire_acide, matrice_paire_position):
 			pos_b=ARRAY_ACIDE.index(matrice_paire_acide[j][1]) #On récupère la position de l'acide b (index)
 			# print(pos_a,' ',pos_b)
 			result[0][i]=result[0][i]+(wij[j][i]*np.log2(wij[j][i]/(wi_a[pos_i][pos_a]*wi_a[pos_j][pos_b])))
-	print(result[0][0])
+	print("M 0, 1 : ",result[0][0])
 	return result
+
+def read_file_distance():
+	res=[]
+	f = open("distances.txt",'rb')
+	raw_file = f.readlines()
+	f.close()
+	for i in range(len(raw_file)):
+		print(raw_file[i].decode("utf-8"))
+		res.append(raw_file[i].decode("utf-8").split())
+	print(res)
+	return res
+
+def fonct_4(mij, matrice_paire_position):
+	print(len(mij[0]), len(matrice_paire_position))
+	index=np.argsort(mij)
+	result=[]
+	# print(result[0][0], mij[0][index[0]])
+	for i in range(50):
+		result.append(matrice_paire_position[index[0][len(mij[0])-1-i]])
+	distances=read_file_distance()
+	fraction(result, distances)
+	print(result)
+
+def fraction(m_grand, distances):
+	interval=[0]*10
+	result=[0.0]*10
+	for i in range(len(interval)):
+		interval[i]=(len(m_grand)/10)+(len(m_grand)/10)*i
+	print(interval, len(distances))
+	for i in range(len(interval)):
+		res=m_grand[0:int(interval[i])]
+		for j in range(len(res)):
+			index=matrice_paire_position.index((int(res[j][0]), int(res[j][1])))
+			# print(distances[index])
+			if float(distances[index][2])<8:
+				result[i]=result[i]+1
+		result[i]=result[i]/interval[i]
+	print(result)
+	affiche_fraction(result, interval)
+
+def affiche_fraction(data, axis):
+	x=np.arange(10);
+	for i in range(len(axis)):
+		axis[i]=int(axis[i])
+	plt.xticks(x, axis)
+	plt.plot(data)
+	plt.show()
 
 if __name__ == '__main__':
 	train=read_file("Dtrain.txt")
@@ -235,4 +282,5 @@ if __name__ == '__main__':
 	# function4(matrix_test, res_fonction_1[1])
 	wi_a=fonct_1(matrix_train)
 	nij, wij, matrice_paire_acide, matrice_paire_position=fonct_2(matrix_train)
-	fonct_3(wij, wi_a, matrice_paire_acide, matrice_paire_position)
+	mij=fonct_3(wij, wi_a, matrice_paire_acide, matrice_paire_position)
+	fonct_4(mij, matrice_paire_position)
