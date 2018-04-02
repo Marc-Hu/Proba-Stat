@@ -3,6 +3,7 @@ from CdM import CdM
 
 class MouseInMaze(CdM):
     def __init__(self):
+        self.stateToIndex = {'1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5}
         super(MouseInMaze, self).__init__()
 
 
