@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+#-*- coding: utf-8 -*-
+
 import matplotlib.pyplot as plt
 
 import utils
@@ -7,7 +10,8 @@ from CdM import CdM
 # feu rouge hérite de CdM
 class FeuRouge(CdM):
   def __init__(self):
-    super().__init__()
+    super(FeuRouge, self).__init__()
+    self.stateToIndex = {'Rouge' : 0, 'Orange' : 1, 'Vert' : 2}
 
   def get_states(self):
     return ['Rouge', 'Orange', 'Vert']

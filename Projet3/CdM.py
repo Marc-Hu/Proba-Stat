@@ -1,10 +1,13 @@
+#!/usr/bin/env python
+#-*- coding: utf-8 -*-
+
 import numpy as np
 import pyAgrum as gum
 
 import utils
 
 
-class CdM:
+class CdM(object):
   """
   Class virtuelle représentant une Chaîne de Markov
   """
@@ -16,6 +19,7 @@ class CdM:
     :warning: doit être appelé en fin de __init__ des classes filles
     avec ` super().__init__()`
     """
+    self.stateToIndex
     pass
 
   def get_states(self):
@@ -50,3 +54,11 @@ class CdM:
 
   def show_transition_matrix(self):
     utils.show_matrix(self.get_transition_matrix())
+    
+  def distribution_to_vector(self, distribution):
+        l = len(self.get_states())
+        vector = np.zeros((1, l))
+        for k, v in distribution.items():
+        	index = self.stateToIndex.index(k)
+            vector[0][index] = v
+        return vector[0]
