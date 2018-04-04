@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -25,9 +24,32 @@ def show_matrix(matrix):
   plt.show()
 
 
-def pgcd(a, b):
+def pgcd(a, b): 
   """pgcd(a,b): calcul du 'Plus Grand Commun Diviseur' entre les 2 nombres entiers a et b"""
   while b != 0:
     a, b = b, a % b
 
   return a
+
+
+def dfs(g):
+  """
+  Depth-first search dans le graphe g.
+  Cette fonction n'est qu'un prototype de code : elle ne fait rien à part le parcours en profondeur d'abord dans
+  pyAgrum.DiGraph.
+  :param g:
+  :return:
+  """
+  mark = dict()
+
+  def _dfs(node):
+    if node in mark:  # déja visité
+      return
+
+    mark[node] = True
+    for fils in g.children(node):
+      _dfs(fils)
+
+  for i in g.ids():
+    if i not in mark:
+      _dfs(i)

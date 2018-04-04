@@ -3,35 +3,41 @@ import copy as cp
 import matplotlib.pyplot as plt
 import sys
 
-ARRAY_ACIDE=['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y', '-']
-#Fonction qui va récupérer les données d'un fichier
+# Liste contenant les acides; à utiliser tout au long du projet.
+ARRAY_ACIDE = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y', '-']
+
+##
+# Fonctions pour la lecture des données de la première partie et leurs organisation dans une matrice.
+##
+
+# Fonction pour récupérer les données d'un fichier
 def read_file(fname):
-	res=[]
+	res = []
 	f = open(fname,'rb')
 	raw_file = f.readlines()
 	f.close()
 	for i in range(len(raw_file)):
-		raw_file[i]=raw_file[i].decode('utf-8')
-	for i  in range(int(len(raw_file)/2)):
-		res.append(raw_file[i*2+1][0:len(raw_file[i*2+1])-1])
+		raw_file[i] = raw_file[i].decode('utf-8')
+	for i  in range(int(len(raw_file)/2)): # Ne récupérer que les lignes impaires représentant les protéines en comptant depuis 0.
+		res.append(raw_file[i*2+1][0:len(raw_file[i*2+1])-1]) #!!!
 	# print(res)
 	return res
 
-#Fonction qui va initialiser la matrice training
+#Fonction pour initialiser la matrice training
 def matrix_bio(train):
-	char_array=np.chararray((len(train), 48));
+	char_array = np.chararray((len(train), 48))
 	char_array[:] = '*'
 	for i in range(len(train)):
-		for j in range(len(train[i])):
-			char_array[i][j]=train[i][j]
-	return char_array;
+		for j in range(48):
+			char_array[i][j] = train[i][j]
+	return char_array
 
 ##
 #	I. Données
 ##
 
 ##
-#	Fonction 1
+# Première fonction: Pour chaque position (colonne) i = 0, ..., L−1 et chaque acide aminée a ∈ A(le trou compris), on calcule le nombre d’occurence ni(a) (équation 1) et le poid ωi(a) (équation 3).
 ##
 
 # Fonction qui va récupérer ni_a et wi_a
