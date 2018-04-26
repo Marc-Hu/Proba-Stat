@@ -29,3 +29,10 @@ class FeuRouge(CdM):
     def get_initial_distribution(self):
         return {'Vert': 0.3, 'Rouge': 0.7}
 
+    def show_distribution(self, distribution):
+        fig, ax = plt.subplots()
+        fig.set_size_inches(4, 1)
+        ax.set_xticks([])
+        ax.set_yticklabels(self.get_states())
+        ax.set_yticks([0, 1, 2])
+        ax.imshow(self.distribution_to_vector(distribution).reshape(3, 1), cmap=utils.ProbaMap)

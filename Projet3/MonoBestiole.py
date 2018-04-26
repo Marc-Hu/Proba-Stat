@@ -1,5 +1,7 @@
 import numpy as np
 from CdM import CdM
+import matplotlib.pyplot as plt
+import utils
 
 
 class MonoBestiole(CdM):
@@ -13,7 +15,7 @@ class MonoBestiole(CdM):
         super(MonoBestiole, self).__init__()
 
     def get_states(self):
-        return range(1, self.nbEtat+1)
+        return list(range(1, self.nbEtat+1))
 
     def get_transition_distribution(self, state):
         droite = state+1
@@ -27,4 +29,11 @@ class MonoBestiole(CdM):
     def get_initial_distribution(self):
         return { '1' : 0.3, '2': 0.1, str(self.nbEtat-1):0.2, str(self.nbEtat):0.4}
 
+    def show_distribution(self, distribution):
+        fig, ax = plt.subplots()
+        fig.set_size_inches(4, 1)
+        ax.set_yticks([])
+        ax.set_xticklabels(self.get_states())
+        ax.set_xticks(np.arange(0, len(self.get_states()), step=1))
+        ax.imshow(self.distribution_to_vector(distribution).reshape(1, len(self.get_states())), cmap=utils.ProbaMap)
 

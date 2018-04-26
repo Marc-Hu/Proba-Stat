@@ -5,6 +5,7 @@ import numpy as np
 import pyAgrum as gum
 import pyAgrum.lib.notebook as gnb
 import matplotlib.pyplot as plt
+import tarjan
 
 import utils
 
@@ -149,6 +150,84 @@ class CdM(object):
                 if array[i][j]!=0. :
                     res += str("  "+str(i)+'->'+str(j)+" [label="+str(array[i][j])+"];\n")
         res+="}"
-        print(res)
         gnb.showDot(res)
 
+    def get_communication_classes(self):
+        return tarjan.tarjan(self.makeGraph())
+        # return self.dfs(graph)
+
+    def makeGraph(self):
+        graph = {}
+        component = []
+        for i in range(len(self.get_states())):
+            for j in range(len(self.get_transition_matrix()[i].tolist())):
+                if not self.get_transition_matrix()[i].tolist()[j] == 0:
+                    component.append(self.get_states()[j])
+            # print(component)
+            graph[self.get_states()[i]] = component
+            component = []
+        return graph
+
+    def get_absorbing_classes(self):
+        result=[]
+        notirreductibleresult =[]
+        found=False
+        graph = self.makeGraph()
+        for key, value in graph.items():
+            for i in range(len(value)):
+                if not value[i]==key:
+                    result.append(True)
+                    found=True
+                    break
+            if not found :
+                notirreductibleresult.append([key])
+            found=False
+        if len(result)==len(graph) :
+            return self.get_communication_classes()
+        return notirreductibleresult
+
+    def is_irreducible(self):
+        if len(self.get_states()) == len(self.get_absorbing_classes()[0]):
+            return True
+        return False
+
+    # def get_periodicity(self):
+
+
+    # def dfs(self, graph):
+    #     seen = [0] * len(graph)
+    #     res = []
+    #     component = []
+    #     result=[]
+    #
+    #     def parcourir(key, component):
+    #         element = graph[key]
+    #         print("element = ", element)
+    #         for i in range (len(element)) :
+    #             # index = element.index(value)
+    #             print("index = ", i)
+    #             if not value == 0.0 and not i in component and seen[i]==0:
+    #                 print("1.index = ", i)
+    #                 seen[i] = 1
+    #                 component.append(i)
+    #                 parcourir(self.get_states()[i], component)
+    #             # elif
+    #         print("component = ", component)
+    #         return component
+    #
+    #     for key, value in graph.items() :
+    #         index = self.get_states().index(key)
+    #         if seen[index] == 0:
+    #             print("Key = ", key, " Value = ", value)
+    #             res.append(parcourir(key, component))
+    #             component=[]
+    #             print("COMPONENT IS EMPTY!!!")
+    #     print("res = ", res)
+    #
+    #     for i in range(len(res)):
+    #         component=[]
+    #         for j in range(len(res[i])):
+    #             component.append(self.get_states()[res[i][j]])
+    #         result.append(component)
+    #     return result
+    #     # return parcourir(graph["Orange"])
