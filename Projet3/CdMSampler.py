@@ -98,7 +98,7 @@ class CdMSampler:
         self.notify_initialize(max_iter)
         for i in range(1, max_iter+1):
             state = self.draw_from_distribution(self.cdm.get_initial_distribution())
-            print("state = ", state)
+            # print("state = ", state)
             r = self.notify_receive(i, state)
             if r:
                 break

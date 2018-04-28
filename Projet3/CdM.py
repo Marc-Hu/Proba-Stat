@@ -10,7 +10,7 @@ import tarjan
 import utils
 
 
-class CdM(object):
+class CdM():
     """
     Class virtuelle représentant une Chaîne de Markov
     """
@@ -191,7 +191,52 @@ class CdM(object):
             return True
         return False
 
-    # def get_periodicity(self):
+    def find_all_paths(self, graph, start, end, path=[]):
+        path = path + [start]
+        if start == end:
+            return [path]
+        if start not in graph:
+            return []
+        paths = []
+        for node in graph[start]:
+            if node not in path:
+                newpaths = self.find_all_paths(graph, node, end, path)
+                for newpath in newpaths:
+                    paths.append(newpath)
+        return paths
+
+    def get_periodicity(self):
+        # print(self.makeGraph())
+        graph = self.makeGraph()
+        result = []
+        if self.is_irreducible():
+            for key, value in graph.items():
+                for i in range(len(value)):
+                    paths = [[[key]+y for y in self.find_all_paths(graph, x, key)] for x in graph[key]]
+                    length_path = []
+                    for j in range (len(paths)):
+                        length_path.append(len(paths[j][0])-1)
+                    if len(length_path)==1:
+                        result.append(length_path[0])
+                    # elif len(length_path)==2:
+                    #     result.append(utils.pgcd(length_path[0], length_path[1]))
+                    else :
+                        # print("length path", length_path)
+                        pgcd_result = utils.pgcd(length_path[0], length_path[1])
+                        for k in range(2, len(length_path)):
+                            pgcd_result = utils.pgcd(pgcd_result, length_path[k])
+                        result.append(pgcd_result)
+            # print(result)
+            pgcd_result = utils.pgcd(result[0], result[1])
+            for k in range(2, len(result)):
+                pgcd_result = utils.pgcd(pgcd_result, result[k])
+            return pgcd_result
+        return
+
+    def is_aperiodic(self):
+        if self.get_periodicity() == 1:
+            return True
+        return False
 
 
     # def dfs(self, graph):
