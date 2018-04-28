@@ -1,11 +1,13 @@
 #!/usr/bin/env python
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import numpy as np
 import pyAgrum as gum
 import pyAgrum.lib.notebook as gnb
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import tarjan
+from decimal import Decimal
+import math
 
 import utils
 
@@ -45,7 +47,6 @@ class CdM():
         """
         raise NotImplementedError
 
-
     def __len__(self):
         """
         permet d'utiliser len(CdM) pour avoir le nombre d'état d'un CdM
@@ -62,7 +63,7 @@ class CdM():
         :return:
         """
         utils.show_matrix(self.get_transition_matrix())
-    
+
     def distribution_to_vector(self, distribution):
         """
         Convertit la distribution en vecteur
@@ -84,8 +85,8 @@ class CdM():
         """
         list = {}
         for i in range(len(vector)):
-            if not vector[i]==0.:
-                list[self.get_states()[i]]=vector[i]
+            if not vector[i] == 0.:
+                list[self.get_states()[i]] = vector[i]
         return list
 
     def show_distribution(self, distribution):
@@ -94,9 +95,9 @@ class CdM():
         :param distribution: Distribution à représenter
         :return:
         """
-        res=[0]*self.__len__()
+        res = [0] * self.__len__()
         for i in range(len(self.get_states())):
-            if self.get_states()[i] in distribution :
+            if self.get_states()[i] in distribution:
                 res[i] = distribution[self.get_states()[i]]
         return res
 
@@ -112,7 +113,7 @@ class CdM():
             distribution = self.get_transition_distribution(state[i])
             for j in range(array.shape[1]):
                 if state[j] in distribution:
-                    array[i][j]=distribution[state[j]]
+                    array[i][j] = distribution[state[j]]
         return array
 
     def get_transition_graph(self):
@@ -128,7 +129,7 @@ class CdM():
 
         for i in range(array.shape[0]):
             for j in range(array.shape[1]):
-                if array[i][j]!=0. :
+                if array[i][j] != 0.:
                     g.addArc(i, j)
 
         return g
@@ -140,23 +141,31 @@ class CdM():
         :return:
         """
         array = self.get_transition_matrix()
-        res="digraph {\n"
+        res = "digraph {\n"
         state = self.get_states()
         for i in range(len(state)):
-            res += str("  "+str(i)+" [label=\"["+str(i)+"] "+str(state[i])+"\"];\n")
+            res += str("  " + str(i) + " [label=\"[" + str(i) + "] " + str(state[i]) + "\"];\n")
         res += "\n"
         for i in range(array.shape[0]):
             for j in range(array.shape[1]):
-                if array[i][j]!=0. :
-                    res += str("  "+str(i)+'->'+str(j)+" [label="+str(array[i][j])+"];\n")
-        res+="}"
+                if array[i][j] != 0.:
+                    res += str("  " + str(i) + '->' + str(j) + " [label=" + str(array[i][j]) + "];\n")
+        res += "}"
         gnb.showDot(res)
 
     def get_communication_classes(self):
+        """
+        Méthode qui retourne les composantes fortement connexes du graphe du CdM
+        :return:
+        """
         return tarjan.tarjan(self.makeGraph())
         # return self.dfs(graph)
 
     def makeGraph(self):
+        """
+        Méthode qui va construire un graphe par rapport à la matrice de transition
+        :return:
+        """
         graph = {}
         component = []
         for i in range(len(self.get_states())):
@@ -169,110 +178,148 @@ class CdM():
         return graph
 
     def get_absorbing_classes(self):
-        result=[]
-        notirreductibleresult =[]
-        found=False
+        """
+        Méthode qui permet de connaître les classes absorbante
+        :return:
+        """
+        result = []
+        notirreductibleresult = []
+        found = False
         graph = self.makeGraph()
         for key, value in graph.items():
             for i in range(len(value)):
-                if not value[i]==key:
+                if not value[i] == key:
                     result.append(True)
-                    found=True
+                    found = True
                     break
-            if not found :
+            if not found:
                 notirreductibleresult.append([key])
-            found=False
-        if len(result)==len(graph) :
+            found = False
+        if len(result) == len(graph):
             return self.get_communication_classes()
         return notirreductibleresult
 
     def is_irreducible(self):
+        """
+        Méthode qui permet de savoir si un graphe est irreductible ou non
+        :return:
+        """
         if len(self.get_states()) == len(self.get_absorbing_classes()[0]):
             return True
         return False
 
     def find_all_paths(self, graph, start, end, path=[]):
-        path = path + [start]
-        if start == end:
+        """
+        Méthode qui va chercher et renvoyer tous les chemins possibles d'un graph
+        :param graph: Graphe à parcourir
+        :param start: L'état de départ
+        :param end: L'état à atteindre
+        :param path: Chemin en cours d'exploitation
+        :return: Tous les chemins possible entre l'état start et l'état end
+        """
+        path = path + [start] # Ajout de l'état start dans le path
+        if start == end: # Si on est arrivé alors on retourne le path
             return [path]
-        if start not in graph:
-            return []
-        paths = []
-        for node in graph[start]:
-            if node not in path:
-                newpaths = self.find_all_paths(graph, node, end, path)
-                for newpath in newpaths:
-                    paths.append(newpath)
+        if start not in graph: # Si l'état n'appartient pas au graph
+            return [] # On retourne un tableau vide
+        paths = [] # Variable qui va contenir tous les paths
+        for node in graph[start]: # Pour tous les successeur de l'état start
+            if node not in path: # Si le successeur n'est pas encore dans le path
+                newpaths = self.find_all_paths(graph, node, end, path) # On va faire un appel récursive pour chercher le path du successeur
+                for newpath in newpaths: # Pour tous les nouveaux path
+                    paths.append(newpath) # On ajoutes ces paths dans paths
         return paths
 
     def get_periodicity(self):
+        """
+        Méthode pour connaître la périodicité d'un Cdm
+        :return:
+        """
         # print(self.makeGraph())
         graph = self.makeGraph()
+        # print(graph)
         result = []
-        if self.is_irreducible():
-            for key, value in graph.items():
-                for i in range(len(value)):
-                    paths = [[[key]+y for y in self.find_all_paths(graph, x, key)] for x in graph[key]]
-                    length_path = []
-                    for j in range (len(paths)):
-                        length_path.append(len(paths[j][0])-1)
-                    if len(length_path)==1:
+        if self.is_irreducible():  # Si c'est irreductible
+            for key, value in graph.items():  # Pour chaque état key
+                for i in range(len(value)):  # Pour chaque successeurs de la clé
+                    # On va chercher tous les chemins possible entre le key et le key
+                    paths = [[[key] + y for y in self.find_all_paths(graph, x, key)] for x in graph[key]]
+                    length_path = []  # Tableau qui contiendra les longueurs des chemins
+                    for j in range(len(paths)):  # Pour tous les chemins trouvés
+                        length_path.append(len(paths[j][0]) - 1)  # On ajoute la taille - 1 du chemin j
+                    if len(length_path) == 1:  # Si il y a un seul chemin
                         result.append(length_path[0])
-                    # elif len(length_path)==2:
-                    #     result.append(utils.pgcd(length_path[0], length_path[1]))
-                    else :
+                    else:
                         # print("length path", length_path)
+                        # On calcule le pgcd des deux première valeurs
                         pgcd_result = utils.pgcd(length_path[0], length_path[1])
-                        for k in range(2, len(length_path)):
+                        for k in range(2, len(length_path)): # On boucle si il y a plus de 2
                             pgcd_result = utils.pgcd(pgcd_result, length_path[k])
-                        result.append(pgcd_result)
+                        result.append(pgcd_result) # On va ajouter le resultat du pgcd d'un état
             # print(result)
+            # On fait le pgcd des deux premier resultat
             pgcd_result = utils.pgcd(result[0], result[1])
-            for k in range(2, len(result)):
+            for k in range(2, len(result)): # Et on continue jusqu'a la fin
                 pgcd_result = utils.pgcd(pgcd_result, result[k])
+            # print(pgcd_result)
             return pgcd_result
         return
 
     def is_aperiodic(self):
+        """
+        Méthode qui va vérifier si le Cdm est aprériodique ou non
+        :return: Un boolean pour savoir si c'est apériodique
+        """
         if self.get_periodicity() == 1:
             return True
         return False
 
+    def is_ergodic(self):
+        """
+        Méthode qui va regarder si un CdM est ergodique ou non
+        :return:
+        """
+        print(self.is_irreducible())
+        if self.is_irreducible() and self.is_aperiodic():  # Si c'est ergodique et aperiodique
+            print(self.get_transition_matrix())
+            position = self.distribution_to_vector(self.get_initial_distribution())  # Position initiale
+            result = [0] * len(self.get_states())
+            for i in range(100):  # Nb d'itération
+                for j in range(len(position)):  # Pour chaque position
+                    res = 0
+                    for k in range(len(position)):  # Pour chaque position
+                        # print(self.get_transition_matrix()[j][k])
+                        # Si la valeur de la transition est différente de 0
+                        if not self.get_transition_matrix()[j][k] == 0:
+                            # On modifie la valeur de l'état k
+                            res = res + position[k] * self.get_transition_matrix()[j][k]
+                            # print(j)
+                    result[j] = round(res, 4)  # On arrondi le résultat
+                # print(position, result)
+                # On regarde si sa converge en regardant le précédent tableau avec le nouveau
+                if self.check_array_equals(position, result):
+                    print(True, position, result)
+                    return True
+                position = result.copy()
+        print(False, position, result)
+        return False
 
-    # def dfs(self, graph):
-    #     seen = [0] * len(graph)
-    #     res = []
-    #     component = []
-    #     result=[]
-    #
-    #     def parcourir(key, component):
-    #         element = graph[key]
-    #         print("element = ", element)
-    #         for i in range (len(element)) :
-    #             # index = element.index(value)
-    #             print("index = ", i)
-    #             if not value == 0.0 and not i in component and seen[i]==0:
-    #                 print("1.index = ", i)
-    #                 seen[i] = 1
-    #                 component.append(i)
-    #                 parcourir(self.get_states()[i], component)
-    #             # elif
-    #         print("component = ", component)
-    #         return component
-    #
-    #     for key, value in graph.items() :
-    #         index = self.get_states().index(key)
-    #         if seen[index] == 0:
-    #             print("Key = ", key, " Value = ", value)
-    #             res.append(parcourir(key, component))
-    #             component=[]
-    #             print("COMPONENT IS EMPTY!!!")
-    #     print("res = ", res)
-    #
-    #     for i in range(len(res)):
-    #         component=[]
-    #         for j in range(len(res[i])):
-    #             component.append(self.get_states()[res[i][j]])
-    #         result.append(component)
-    #     return result
-    #     # return parcourir(graph["Orange"])
+    def check_array_equals(self, array1, array2):
+        """
+        Méthode qui va comparer deux tableaux et inspecter la différence entre
+        ces deux tableaux
+        :param array1: Premier tableau
+        :param array2: Deuxième tableau
+        :return: True si la somme des différences entre ces deux tableaux n'est pas trop
+        grande
+        """
+        res = 0.0
+        for i in range(len(array1)):
+            if array1[i] > array2[i]:
+                res = res + array1[i] - array2[i]
+            else:
+                res = res + array2[i] - array1[i]
+        # print(res)
+        if res < 0.001:
+            return True
+        return False

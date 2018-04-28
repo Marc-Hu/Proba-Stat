@@ -2,11 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="66fc30b3-c061-416a-90d8-ddfcd65289d3" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/Projet3/.ipynb_checkpoints/semaine1-checkpoint.ipynb" afterPath="$PROJECT_DIR$/Projet3/.ipynb_checkpoints/semaine1-checkpoint.ipynb" />
       <change beforePath="$PROJECT_DIR$/Projet3/CdM.py" afterPath="$PROJECT_DIR$/Projet3/CdM.py" />
-      <change beforePath="$PROJECT_DIR$/Projet3/CdMSampler.py" afterPath="$PROJECT_DIR$/Projet3/CdMSampler.py" />
-      <change beforePath="$PROJECT_DIR$/Projet3/semaine1.ipynb" afterPath="$PROJECT_DIR$/Projet3/semaine1.ipynb" />
+      <change beforePath="$PROJECT_DIR$/Projet3/PeriodicCdM.py" afterPath="$PROJECT_DIR$/Projet3/PeriodicCdM.py" />
+      <change beforePath="$PROJECT_DIR$/Projet3/main.py" afterPath="$PROJECT_DIR$/Projet3/main.py" />
+      <change beforePath="$PROJECT_DIR$/Projet3/semaine2.ipynb" afterPath="$PROJECT_DIR$/Projet3/semaine2.ipynb" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -42,20 +41,42 @@
       <file leaf-file-name="MouseInMaze.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Projet3/MouseInMaze.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="660">
-              <caret line="23" column="24" lean-forward="false" selection-start-line="23" selection-start-column="24" selection-end-line="23" selection-end-column="24" />
+            <state relative-caret-position="210">
+              <caret line="8" column="0" lean-forward="true" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CdM.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="CdM.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Projet3/CdM.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="119">
-              <caret line="224" column="31" lean-forward="false" selection-start-line="224" selection-start-column="31" selection-end-line="224" selection-end-column="31" />
+            <state relative-caret-position="1289">
+              <caret line="324" column="20" lean-forward="false" selection-start-line="324" selection-start-column="20" selection-end-line="324" selection-end-column="20" />
               <folding>
-                <element signature="e#46#64#0" expanded="true" />
+                <element signature="e#47#65#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="PeriodicCdM.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Projet3/PeriodicCdM.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-129">
+              <caret line="7" column="67" lean-forward="false" selection-start-line="7" selection-start-column="67" selection-end-line="7" selection-end-column="67" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="main.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Projet3/main.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="544">
+              <caret line="33" column="22" lean-forward="false" selection-start-line="33" selection-start-column="22" selection-end-line="33" selection-end-column="22" />
+              <folding>
+                <element signature="e#47#65#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -64,8 +85,8 @@
       <file leaf-file-name="MonoBestiole.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Projet3/MonoBestiole.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="750">
-              <caret line="25" column="32" lean-forward="false" selection-start-line="25" selection-start-column="32" selection-end-line="25" selection-end-column="32" />
+            <state relative-caret-position="180">
+              <caret line="6" column="18" lean-forward="false" selection-start-line="6" selection-start-column="6" selection-end-line="6" selection-end-column="18" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -76,14 +97,14 @@
       <file leaf-file-name="utils.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Projet3/utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="463">
+            <state relative-caret-position="690">
               <caret line="26" column="8" lean-forward="false" selection-start-line="26" selection-start-column="4" selection-end-line="26" selection-end-column="8" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CdMSampler.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="CdMSampler.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Projet3/CdMSampler.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="403">
@@ -114,6 +135,8 @@
       <find>indexof</find>
       <find>Inf</find>
       <find>stateTo</find>
+      <find>get_transition_matrix</find>
+      <find>get_transition_distribution</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -123,14 +146,15 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/Projet3/MouseInMaze.py" />
-        <option value="$PROJECT_DIR$/Projet3/main.py" />
         <option value="$PROJECT_DIR$/Projet3/semaine1.ipynb" />
         <option value="$PROJECT_DIR$/Projet3/FeuRouge.py" />
         <option value="$PROJECT_DIR$/Projet3/MonoBestiole.py" />
         <option value="$PROJECT_DIR$/Projet3/test.py" />
         <option value="$PROJECT_DIR$/Projet3/CollGetDistribution.py" />
-        <option value="$PROJECT_DIR$/Projet3/CdM.py" />
         <option value="$PROJECT_DIR$/Projet3/CdMSampler.py" />
+        <option value="$PROJECT_DIR$/Projet3/PeriodicCdM.py" />
+        <option value="$PROJECT_DIR$/Projet3/main.py" />
+        <option value="$PROJECT_DIR$/Projet3/CdM.py" />
       </list>
     </option>
   </component>
@@ -190,7 +214,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.test">
+  <component name="RunManager" selected="Python.main">
     <configuration name="CdM" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -271,8 +295,8 @@
     </list>
     <recent_temporary>
       <list size="4">
-        <item index="0" class="java.lang.String" itemvalue="Python.test" />
-        <item index="1" class="java.lang.String" itemvalue="Python.main" />
+        <item index="0" class="java.lang.String" itemvalue="Python.main" />
+        <item index="1" class="java.lang.String" itemvalue="Python.test" />
         <item index="2" class="java.lang.String" itemvalue="Python.FeuRouge" />
         <item index="3" class="java.lang.String" itemvalue="Python.CdM" />
       </list>
@@ -378,7 +402,7 @@
         <state relative-caret-position="5700">
           <caret line="196" column="70" lean-forward="false" selection-start-line="196" selection-start-column="70" selection-end-line="196" selection-end-column="70" />
           <folding>
-            <element signature="e#46#64#0" expanded="true" />
+            <element signature="e#47#65#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -414,7 +438,7 @@
         <state relative-caret-position="5640">
           <caret line="194" column="0" lean-forward="false" selection-start-line="194" selection-start-column="0" selection-end-line="194" selection-end-column="0" />
           <folding>
-            <element signature="e#46#64#0" expanded="true" />
+            <element signature="e#47#65#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -520,7 +544,7 @@
         <state relative-caret-position="4530">
           <caret line="156" column="77" lean-forward="false" selection-start-line="156" selection-start-column="77" selection-end-line="156" selection-end-column="77" />
           <folding>
-            <element signature="e#46#64#0" expanded="true" />
+            <element signature="e#47#65#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -555,7 +579,7 @@
         <state relative-caret-position="2010">
           <caret line="72" column="17" lean-forward="true" selection-start-line="72" selection-start-column="17" selection-end-line="72" selection-end-column="17" />
           <folding>
-            <element signature="e#46#64#0" expanded="true" />
+            <element signature="e#47#65#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -592,7 +616,7 @@
         <state relative-caret-position="1716">
           <caret line="82" column="33" lean-forward="false" selection-start-line="82" selection-start-column="33" selection-end-line="82" selection-end-column="33" />
           <folding>
-            <element signature="e#46#64#0" expanded="true" />
+            <element signature="e#47#65#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -619,7 +643,7 @@
         <state relative-caret-position="1170">
           <caret line="82" column="33" lean-forward="false" selection-start-line="82" selection-start-column="33" selection-end-line="82" selection-end-column="33" />
           <folding>
-            <element signature="e#46#64#0" expanded="true" />
+            <element signature="e#47#65#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -659,20 +683,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Projet3/PeriodicCdM.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Projet3/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="12" column="6" lean-forward="false" selection-start-line="12" selection-start-column="6" selection-end-line="14" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Projet3/CollSingleStateCounter.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="270">
@@ -695,48 +705,12 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Projet3/test.py" />
-    <entry file="file://$PROJECT_DIR$/Projet3/utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="463">
-          <caret line="26" column="8" lean-forward="false" selection-start-line="26" selection-start-column="4" selection-end-line="26" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Projet3/MonoBestiole.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="750">
-          <caret line="25" column="32" lean-forward="false" selection-start-line="25" selection-start-column="32" selection-end-line="25" selection-end-column="32" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Projet3/MouseInMaze.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="660">
-          <caret line="23" column="24" lean-forward="false" selection-start-line="23" selection-start-column="24" selection-end-line="23" selection-end-column="24" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Projet3/FeuRouge.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
           <caret line="12" column="8" lean-forward="true" selection-start-line="12" selection-start-column="8" selection-end-line="12" selection-end-column="65" />
           <folding>
             <element signature="e#46#77#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Projet3/CdM.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="224" column="31" lean-forward="false" selection-start-line="224" selection-start-column="31" selection-end-line="224" selection-end-column="31" />
-          <folding>
-            <element signature="e#46#64#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -755,6 +729,60 @@
           <caret line="101" column="32" lean-forward="false" selection-start-line="101" selection-start-column="32" selection-end-line="101" selection-end-column="32" />
           <folding>
             <element signature="e#24#37#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Projet3/utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="690">
+          <caret line="26" column="8" lean-forward="false" selection-start-line="26" selection-start-column="4" selection-end-line="26" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Projet3/MonoBestiole.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="6" column="18" lean-forward="false" selection-start-line="6" selection-start-column="6" selection-end-line="6" selection-end-column="18" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Projet3/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="544">
+          <caret line="33" column="22" lean-forward="false" selection-start-line="33" selection-start-column="22" selection-end-line="33" selection-end-column="22" />
+          <folding>
+            <element signature="e#47#65#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Projet3/PeriodicCdM.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-129">
+          <caret line="7" column="67" lean-forward="false" selection-start-line="7" selection-start-column="67" selection-end-line="7" selection-end-column="67" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Projet3/MouseInMaze.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="8" column="0" lean-forward="true" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Projet3/CdM.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1289">
+          <caret line="324" column="20" lean-forward="false" selection-start-line="324" selection-start-column="20" selection-end-line="324" selection-end-column="20" />
+          <folding>
+            <element signature="e#47#65#0" expanded="true" />
           </folding>
         </state>
       </provider>
