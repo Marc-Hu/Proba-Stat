@@ -182,21 +182,13 @@ class CdM():
         Méthode qui permet de connaître les classes absorbante
         :return:
         """
-        result = []
         notirreductibleresult = []
-        found = False
         graph = self.makeGraph()
-        for key, value in graph.items():
-            for i in range(len(value)):
-                if not value[i] == key:
-                    result.append(True)
-                    found = True
-                    break
-            if not found:
+        for key, value in graph.items(): # On va parcourir tous les états pour savoir si un état est absorbant
+            if len(value)==1 and value[0] == key or len(value)==0:
                 notirreductibleresult.append([key])
-            found = False
-        if len(result) == len(graph):
-            return self.get_communication_classes()
+        if len(notirreductibleresult)==0: # Si il n'y en a pas
+            return self.get_communication_classes() # On renvoie la sous-chaine de markov irreductible
         return notirreductibleresult
 
     def is_irreducible(self):
