@@ -271,9 +271,9 @@ class CdM():
         Méthode qui va regarder si un CdM est ergodique ou non
         :return:
         """
-        print(self.is_irreducible())
+        # print(self.is_irreducible())
         if self.is_irreducible() and self.is_aperiodic():  # Si c'est ergodique et aperiodique
-            print(self.get_transition_matrix())
+            # print(self.get_transition_matrix())
             position = self.distribution_to_vector(self.get_initial_distribution())  # Position initiale
             result = [0] * len(self.get_states())
             for i in range(100):  # Nb d'itération
@@ -289,14 +289,14 @@ class CdM():
                     result[j] = round(res, 4)  # On arrondi le résultat
                 # print(position, result)
                 # On regarde si sa converge en regardant le précédent tableau avec le nouveau
-                if self.check_array_equals(position, result):
-                    print(True, position, result)
-                    return True
+                if self.check_array_equals(position, result, 0.001):
+                    # print(True, position, result)
+                    return True, i, position
                 position = result.copy()
-        print(False, position, result)
-        return False
+        # print(False, position, result)
+        return False, i, position
 
-    def check_array_equals(self, array1, array2):
+    def check_array_equals(self, array1, array2, epsilon):
         """
         Méthode qui va comparer deux tableaux et inspecter la différence entre
         ces deux tableaux
@@ -312,6 +312,6 @@ class CdM():
             else:
                 res = res + array2[i] - array1[i]
         # print(res)
-        if res < 0.001:
+        if res < epsilon:
             return True
         return False

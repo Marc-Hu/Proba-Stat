@@ -5,6 +5,7 @@ import pyAgrum.lib.notebook as gnb
 from MouseInMaze import MouseInMaze
 from MonoBestiole import MonoBestiole
 from PeriodicCdM import PeriodicCdM
+from CdMConvergence import CdMConvergence
 
 if __name__ == '__main__':
     # f = FeuRouge()
@@ -31,8 +32,10 @@ if __name__ == '__main__':
     # m = MouseInMaze()
     # m.is_ergodic();
 
-    m = MonoBestiole(5, 0.5, 0.5)
-    m.is_ergodic()
+    m = MonoBestiole(6, 0.5, 0.5)
+    cdm = CdMConvergence(m)
+    cdm.point_fixe()
+    # m.convergence_M_n()
 
     # p=PeriodicCdM()
     # p.is_ergodic()

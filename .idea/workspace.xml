@@ -2,9 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="66fc30b3-c061-416a-90d8-ddfcd65289d3" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/Projet3/CdM.py" afterPath="$PROJECT_DIR$/Projet3/CdM.py" />
-      <change beforePath="$PROJECT_DIR$/Projet3/semaine1.ipynb" afterPath="$PROJECT_DIR$/Projet3/semaine1.ipynb" />
+      <change beforePath="$PROJECT_DIR$/Projet3/CollGetDistribution.py" afterPath="$PROJECT_DIR$/Projet3/CollGetDistribution.py" />
+      <change beforePath="$PROJECT_DIR$/Projet3/main.py" afterPath="$PROJECT_DIR$/Projet3/main.py" />
+      <change beforePath="$PROJECT_DIR$/Projet3/semaine2.ipynb" afterPath="$PROJECT_DIR$/Projet3/semaine2.ipynb" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -18,8 +19,8 @@
       <file leaf-file-name="CollGetDistribution.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Projet3/CollGetDistribution.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="510">
-              <caret line="17" column="19" lean-forward="false" selection-start-line="17" selection-start-column="19" selection-end-line="17" selection-end-column="19" />
+            <state relative-caret-position="330">
+              <caret line="14" column="0" lean-forward="true" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -50,8 +51,8 @@
       <file leaf-file-name="CdM.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Projet3/CdM.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="780">
-              <caret line="215" column="29" lean-forward="true" selection-start-line="215" selection-start-column="29" selection-end-line="215" selection-end-column="29" />
+            <state relative-caret-position="346">
+              <caret line="276" column="21" lean-forward="true" selection-start-line="276" selection-start-column="21" selection-end-line="276" selection-end-column="21" />
               <folding>
                 <element signature="e#47#65#0" expanded="true" />
               </folding>
@@ -59,10 +60,20 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="CdMConvergence.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Projet3/CdMConvergence.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="500">
+              <caret line="79" column="42" lean-forward="false" selection-start-line="79" selection-start-column="42" selection-end-line="79" selection-end-column="42" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="PeriodicCdM.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Projet3/PeriodicCdM.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
+            <state relative-caret-position="30">
               <caret line="7" column="67" lean-forward="false" selection-start-line="7" selection-start-column="67" selection-end-line="7" selection-end-column="67" />
               <folding />
             </state>
@@ -72,8 +83,8 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Projet3/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="870">
-              <caret line="33" column="22" lean-forward="false" selection-start-line="33" selection-start-column="22" selection-end-line="33" selection-end-column="22" />
+            <state relative-caret-position="784">
+              <caret line="36" column="19" lean-forward="false" selection-start-line="36" selection-start-column="19" selection-end-line="36" selection-end-column="19" />
               <folding>
                 <element signature="e#47#65#0" expanded="true" />
               </folding>
@@ -103,7 +114,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CdMSampler.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="CdMSampler.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Projet3/CdMSampler.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="403">
@@ -136,6 +147,7 @@
       <find>stateTo</find>
       <find>get_transition_matrix</find>
       <find>get_transition_distribution</find>
+      <find>print</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -149,11 +161,12 @@
         <option value="$PROJECT_DIR$/Projet3/FeuRouge.py" />
         <option value="$PROJECT_DIR$/Projet3/MonoBestiole.py" />
         <option value="$PROJECT_DIR$/Projet3/test.py" />
-        <option value="$PROJECT_DIR$/Projet3/CollGetDistribution.py" />
         <option value="$PROJECT_DIR$/Projet3/CdMSampler.py" />
         <option value="$PROJECT_DIR$/Projet3/PeriodicCdM.py" />
+        <option value="$PROJECT_DIR$/Projet3/CollGetDistribution.py" />
         <option value="$PROJECT_DIR$/Projet3/main.py" />
         <option value="$PROJECT_DIR$/Projet3/CdM.py" />
+        <option value="$PROJECT_DIR$/Projet3/CdMConvergence.py" />
       </list>
     </option>
   </component>
@@ -350,16 +363,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Projet3/FeuRouge.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1020">
-          <caret line="37" column="59" lean-forward="false" selection-start-line="37" selection-start-column="59" selection-end-line="37" selection-end-column="73" />
-          <folding>
-            <element signature="e#46#77#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Projet3/MouseInMaze.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="660">
@@ -714,14 +717,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Projet3/CollGetDistribution.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="17" column="19" lean-forward="false" selection-start-line="17" selection-start-column="19" selection-end-line="17" selection-end-column="19" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Projet3/utils.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="690">
@@ -740,39 +735,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Projet3/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="870">
-          <caret line="33" column="22" lean-forward="false" selection-start-line="33" selection-start-column="22" selection-end-line="33" selection-end-column="22" />
-          <folding>
-            <element signature="e#47#65#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Projet3/PeriodicCdM.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="7" column="67" lean-forward="false" selection-start-line="7" selection-start-column="67" selection-end-line="7" selection-end-column="67" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Projet3/MouseInMaze.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="210">
           <caret line="8" column="0" lean-forward="false" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Projet3/CdM.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="780">
-          <caret line="215" column="29" lean-forward="true" selection-start-line="215" selection-start-column="29" selection-end-line="215" selection-end-column="29" />
-          <folding>
-            <element signature="e#47#65#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -783,6 +750,50 @@
           <folding>
             <element signature="e#24#37#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Projet3/CollGetDistribution.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="14" column="0" lean-forward="true" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Projet3/PeriodicCdM.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="7" column="67" lean-forward="false" selection-start-line="7" selection-start-column="67" selection-end-line="7" selection-end-column="67" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Projet3/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="784">
+          <caret line="36" column="19" lean-forward="false" selection-start-line="36" selection-start-column="19" selection-end-line="36" selection-end-column="19" />
+          <folding>
+            <element signature="e#47#65#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Projet3/CdM.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="346">
+          <caret line="276" column="21" lean-forward="true" selection-start-line="276" selection-start-column="21" selection-end-line="276" selection-end-column="21" />
+          <folding>
+            <element signature="e#47#65#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Projet3/CdMConvergence.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="500">
+          <caret line="79" column="42" lean-forward="false" selection-start-line="79" selection-start-column="42" selection-end-line="79" selection-end-column="42" />
+          <folding />
         </state>
       </provider>
     </entry>

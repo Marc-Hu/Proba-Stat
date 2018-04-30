@@ -11,6 +11,7 @@ class CollGetDistribution(Collector):
         # print("run({}): ".format(max_iter), end="", flush=True)
         # print(cdm, max_iter)
         self.max_iter=max_iter
+        print(cdm.get_initial_distribution())
 
     def receive(self, cdm, iter, state):
         # print(iter, state)
