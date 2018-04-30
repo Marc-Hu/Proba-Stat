@@ -78,5 +78,6 @@ class CdMConvergence():
             return False
         pi_n = self.convergence_pi_n(0.000001)
         M_n = self.convergence_M_n(0.000001)
+        print(np.linalg.eig(M_n[2]))
         print(pi_n[2])
         print("Vecteur propre de M pour la valeur propre 1 : ", np.dot(pi_n[2][0], M_n[2]))
