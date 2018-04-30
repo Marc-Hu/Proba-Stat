@@ -26,7 +26,7 @@ class CdMConvergence():
             # print(array)
             # On verifie si la différence entre les deux matrices est assez faible (selon epsilon)
             if self.cdm.check_array_equals(array[0], array_n_minus_one[0], epsilon):
-                # print(i, array[0])
+                print("Convergence de pi à l'itération : ", i, array)
                 return True, i, array
             array_n_minus_one=array.copy()
         return False, i, array[0]
@@ -46,7 +46,7 @@ class CdMConvergence():
             array=np.dot(array, array)
             # print(array)
             if self.check_matrix_converge(array, array_n_minus_one, epsilon):
-                # print(i, array)
+                print("Convergence de M à l'itération : ", i, array)
                 return True, i, array
             array_n_minus_one=array.copy()
         return False, i, array[0]
