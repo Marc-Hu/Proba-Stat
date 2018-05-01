@@ -27,4 +27,4 @@ class CollTempsMoyen(Collector):
         pass
 
     def get_results(self, cdm):
-        return {"Nombre de retour vers 1 : ": self.nb_retour, "Temps Moyen ": sum(self.temps)/len(self.temps)}
+        return {"Nombre de retour vers 1 ": self.nb_retour, "Temps Moyen ": sum(self.temps)/len(self.temps)}
