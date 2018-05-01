@@ -9,6 +9,7 @@ class CdMConvergence():
         self.cdm = cdm # CdM ou on doit appliquer la convergence
         self.erreur_pi = [] # Evolution des erreurs de pi
         self.erreur_M = [] # Evolution des erreurs de M
+        self.erreur_ergodic = []
         self.nbRun = 20 # Nombre de run pour récupérer des données
         self.temps_pi=[] # Liste des temps récupérer pour chaque run de la convergence de pi
         self.temps_M=[] # Liste de temps récupérer pour chaque run de la convergence de M
@@ -38,7 +39,7 @@ class CdMConvergence():
                     result[j] = round(res, 4)  # On arrondi le résultat
                 # print(position, result)
                 # On regarde si sa converge en regardant le précédent tableau avec le nouveau
-                if self.check_array_equals(position, result, 0.001):
+                if self.check_array_equals(position, result, 0.001, False):
                     # print(True, position, result)
                     self.temps_ergodic.append(time.clock() - start)
                     return True, i, position
@@ -68,7 +69,7 @@ class CdMConvergence():
             # Multiplication de la matrice array avec la matrice de transition
             array = np.dot(array, self.cdm.get_transition_matrix())
             # On verifie si la différence entre les deux matrices est assez faible (selon epsilon)
-            if self.check_array_equals(array[0], array_n_minus_one[0], epsilon):
+            if self.check_array_equals(array[0], array_n_minus_one[0], epsilon, True):
                 # print("Convergence de pi à l'itération : ", i, array)
                 self.temps_pi.append(time.clock() - start)
                 return True, i, array
@@ -78,7 +79,7 @@ class CdMConvergence():
         # print("Pi n'as pas convergé")
         # return array[0]
 
-    def check_array_equals(self, array1, array2, epsilon):
+    def check_array_equals(self, array1, array2, epsilon, forPi):
         """
         Méthode qui va comparer deux tableaux et inspecter la différence entre
         ces deux tableaux
@@ -94,7 +95,10 @@ class CdMConvergence():
             else:
                 res = res + array2[i] - array1[i]
         # print(res)
-        self.erreur_pi.append(res)
+        if forPi :
+            self.erreur_pi.append(res)
+        else :
+            self.erreur_ergodic.append(res)
         if res < epsilon:
             return True
         return False
