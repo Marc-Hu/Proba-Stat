@@ -108,9 +108,11 @@ class CdM():
         """
         size = len(self.get_states())
         state = self.get_states()
+        # print(state)
         array = np.zeros((size, size))
         for i in range(array.shape[0]):
             distribution = self.get_transition_distribution(state[i])
+            # print(distribution)
             for j in range(array.shape[1]):
                 if state[j] in distribution:
                     array[i][j] = distribution[state[j]]

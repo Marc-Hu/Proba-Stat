@@ -83,10 +83,13 @@ class CdMSampler:
         :return: l'état tiré aléatoirement suivant la distribution
         """
         f = random.uniform(0.0, 1.0)
-        print("distribution = ", distribution)
+        # print("distribution = ", distribution)
+        value=0
         for k in distribution.keys():
-            if f < distribution[k]:
+            value = value + distribution[k]
+            if f < value:
                 # Il faut un truc ici sinon c la ...
+                # print("k = ", k)
                 return k
 
     def run(self, max_iter):
@@ -96,8 +99,13 @@ class CdMSampler:
         :return: le dictionnaire des résultats collectés par les collector
         """
         self.notify_initialize(max_iter)
+        init_state = self.cdm.get_initial_distribution()
+        # print(init_state)
         for i in range(1, max_iter+1):
-            state = self.draw_from_distribution(self.cdm.get_initial_distribution())
+            # print(init_state)
+            state = self.draw_from_distribution(init_state)
+            # print(state)
+            init_state = self.cdm.get_transition_distribution(state)
             # print("state = ", state)
             r = self.notify_receive(i, state)
             if r:
