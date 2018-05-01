@@ -32,10 +32,20 @@ if __name__ == '__main__':
     # m = MouseInMaze()
     # m.is_ergodic();
 
+    # m = MonoBestiole(6, 0.5, 0.5)
+    # cdm = CdMConvergence(m)
+    # cdm.point_fixe()
+    # m.convergence_M_n()
     m = MonoBestiole(6, 0.5, 0.5)
+    mouse = MouseInMaze()
+    p = PeriodicCdM()
     cdm = CdMConvergence(m)
     cdm.point_fixe()
-    # m.convergence_M_n()
+    cdm = CdMConvergence(mouse)
+    cdm.point_fixe()
+    cdm = CdMConvergence(p)
+    cdm.point_fixe()
+
 
     # p=PeriodicCdM()
     # p.is_ergodic()

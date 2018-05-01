@@ -112,10 +112,10 @@ class CdM():
         array = np.zeros((size, size))
         for i in range(array.shape[0]):
             distribution = self.get_transition_distribution(state[i])
-            # print(distribution)
             for j in range(array.shape[1]):
                 if state[j] in distribution:
                     array[i][j] = distribution[state[j]]
+        # print(array)
         return array
 
     def get_transition_graph(self):
@@ -174,7 +174,6 @@ class CdM():
             for j in range(len(self.get_transition_matrix()[i].tolist())):
                 if not self.get_transition_matrix()[i].tolist()[j] == 0:
                     component.append(self.get_states()[j])
-            # print(component)
             graph[self.get_states()[i]] = component
             component = []
         return graph
@@ -191,6 +190,7 @@ class CdM():
                 notirreductibleresult.append([key])
         if len(notirreductibleresult)==0: # Si il n'y en a pas
             return self.get_communication_classes() # On renvoie la sous-chaine de markov irreductible
+        # print(notirreductibleresult)
         return notirreductibleresult
 
     def is_irreducible(self):
@@ -198,7 +198,9 @@ class CdM():
         Méthode qui permet de savoir si un graphe est irreductible ou non
         :return:
         """
+        # print(self.get_states() , self.get_absorbing_classes())
         if len(self.get_states()) == len(self.get_absorbing_classes()[0]):
+            # print(True)
             return True
         return False
 
@@ -238,6 +240,7 @@ class CdM():
                 for i in range(len(value)):  # Pour chaque successeurs de la clé
                     # On va chercher tous les chemins possible entre le key et le key
                     paths = [[[key] + y for y in self.find_all_paths(graph, x, key)] for x in graph[key]]
+                    # print("paths : " , paths)
                     length_path = []  # Tableau qui contiendra les longueurs des chemins
                     for j in range(len(paths)):  # Pour tous les chemins trouvés
                         length_path.append(len(paths[j][0]) - 1)  # On ajoute la taille - 1 du chemin j
@@ -247,11 +250,13 @@ class CdM():
                         # print("length path", length_path)
                         # On calcule le pgcd des deux première valeurs
                         pgcd_result = utils.pgcd(length_path[0], length_path[1])
+                        # print(paths)
                         for k in range(2, len(length_path)): # On boucle si il y a plus de 2
                             pgcd_result = utils.pgcd(pgcd_result, length_path[k])
                         result.append(pgcd_result) # On va ajouter le resultat du pgcd d'un état
             # print(result)
             # On fait le pgcd des deux premier resultat
+            # print(result)
             pgcd_result = utils.pgcd(result[0], result[1])
             for k in range(2, len(result)): # Et on continue jusqu'a la fin
                 pgcd_result = utils.pgcd(pgcd_result, result[k])
@@ -296,7 +301,7 @@ class CdM():
                     return True, i, position
                 position = result.copy()
         # print(False, position, result)
-        return False, i, position
+        return False, 0, 0
 
     def check_array_equals(self, array1, array2, epsilon):
         """

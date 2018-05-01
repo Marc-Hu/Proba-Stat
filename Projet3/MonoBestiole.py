@@ -19,20 +19,23 @@ class MonoBestiole(CdM):
         return list(range(1, self.nbEtat+1))
 
     def get_transition_distribution(self, state):
-        droite = int(state)+1
-        gauche = int(state)-1
+        droite = state+1
+        gauche = state-1
         if gauche == 0:
             gauche = 1
         elif droite == self.nbEtat+1:
             droite = self.nbEtat
-        return {str(gauche): self.p_gauche, str(droite) : self.p_droite}
+        return {gauche: self.p_gauche, droite : self.p_droite}
 
     def get_initial_distribution(self):
         return { '1' : 0.3, '2': 0.1, str(self.nbEtat-1):0.2, str(self.nbEtat):0.4}
         # return { str(random.randint(1, len(self.get_states()))) : 1}
 
-    def show_distribution(self, distribution):
+    def show_distribution(self, dist):
         # print("distribution : ", distribution)
+        distribution = {}
+        for key, value in dist.items() :
+            distribution[str(key)] = value
         fig, ax = plt.subplots()
         fig.set_size_inches(4, 1)
         ax.set_yticks([])

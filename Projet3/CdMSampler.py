@@ -104,10 +104,9 @@ class CdMSampler:
         for i in range(1, max_iter+1):
             # print(init_state)
             state = self.draw_from_distribution(init_state)
-            # print(state)
-            init_state = self.cdm.get_transition_distribution(state)
+            init_state = self.cdm.get_transition_distribution(int(state))
             # print("state = ", state)
-            r = self.notify_receive(i, state)
+            r = self.notify_receive(i, int(state))
             if r:
                 break
             if i == max_iter:

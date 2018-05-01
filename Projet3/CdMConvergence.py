@@ -5,6 +5,8 @@ class CdMConvergence():
 
     def __init__(self, cdm):
         self.cdm = cdm
+        self.erreur_pi = []
+        self.erreur_M = []
 
     def convergence_pi_n(self, epsilon):
         """
@@ -16,20 +18,49 @@ class CdMConvergence():
             return False
         array = np.zeros((1, len(self.cdm.get_states())))
         array_n_minus_one = array.copy()
-        # print(array)
         # On initialise pi(0)
         for key, value in self.cdm.get_initial_distribution().items():
-            array[0][int(key)-1]=value
+            try :
+                array[0][int(key)-1]=value
+            except :
+                # print("test")
+                # print(self.cdm.get_states().index(key))
+                # print(array)
+                array[0][self.cdm.get_states().index(key)]=value
+                pass
         for i in range(100): # Itération (la valeur peut être modifié)
             # Multiplication de la matrice array avec la matrice de transition
             array = np.dot(array, self.cdm.get_transition_matrix())
             # print(array)
+            # print(epsilon)
             # On verifie si la différence entre les deux matrices est assez faible (selon epsilon)
-            if self.cdm.check_array_equals(array[0], array_n_minus_one[0], epsilon):
+            if self.check_array_equals(array[0], array_n_minus_one[0], epsilon):
                 print("Convergence de pi à l'itération : ", i, array)
                 return True, i, array
             array_n_minus_one=array.copy()
+        print("Pi n'as pas convergé")
         return False, i, array[0]
+
+    def check_array_equals(self, array1, array2, epsilon):
+        """
+        Méthode qui va comparer deux tableaux et inspecter la différence entre
+        ces deux tableaux
+        :param array1: Premier tableau
+        :param array2: Deuxième tableau
+        :return: True si la somme des différences entre ces deux tableaux n'est pas trop
+        grande
+        """
+        res = 0.0
+        for i in range(len(array1)):
+            if array1[i] > array2[i]:
+                res = res + array1[i] - array2[i]
+            else:
+                res = res + array2[i] - array1[i]
+        # print(res)
+        self.erreur_pi.append(res)
+        if res < epsilon:
+            return True
+        return False
 
     def convergence_M_n(self, epsilon):
         """
@@ -46,7 +77,7 @@ class CdMConvergence():
             array=np.dot(array, array)
             # print(array)
             if self.check_matrix_converge(array, array_n_minus_one, epsilon):
-                print("Convergence de M à l'itération : ", i, array)
+                print("Convergence de M à l'itération : \n", i, array)
                 return True, i, array
             array_n_minus_one=array.copy()
         return False, i, array[0]
@@ -65,6 +96,7 @@ class CdMConvergence():
                     dif = dif + (matrix2[i][j]-matrix1[i][j])
                 else :
                     dif = dif + (matrix1[i][j]-matrix2[i][j])
+        self.erreur_M.append(dif)
         if dif < epsilon:
             return True
         return False
@@ -78,6 +110,15 @@ class CdMConvergence():
             return False
         pi_n = self.convergence_pi_n(0.000001)
         M_n = self.convergence_M_n(0.000001)
-        print(np.linalg.eig(M_n[2]))
-        print(pi_n[2])
-        print("Vecteur propre de M pour la valeur propre 1 : ", np.dot(pi_n[2][0], M_n[2]))
+        # print(np.linalg.eig(M_n[2]))
+        # print(pi_n[2])
+        print("Vecteur propre de M pour la valeur propre 1 : \n", np.dot(pi_n[2][0], self.cdm.get_transition_matrix()))
+        # print("Partie Point Fixe modifiée")
+        # matrice_transition = self.cdm.get_transition_matrix()
+        # valeurs, vecteurs = np.linalg.eig(matrice_transition)
+        # # print("Valeurs propres", valeurs)
+        # # print("Vecteurs propres: ", vecteurs)
+        # position = np.where(valeurs == 1)
+        # # print(position)
+        # print("Le point fixe: ", vecteurs[position])
+        # return vecteurs[position]
