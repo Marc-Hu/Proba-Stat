@@ -8,6 +8,7 @@ import pyAgrum.lib.notebook as gnb
 import tarjan
 from decimal import Decimal
 import math
+import matplotlib.pyplot as plt
 
 import utils
 
@@ -25,6 +26,7 @@ class CdM():
         avec ` super().__init__()`
         """
         self.stateToIndex
+        self.error = []
         pass
 
     def get_states(self):
@@ -185,12 +187,22 @@ class CdM():
         """
         notirreductibleresult = []
         graph = self.makeGraph()
-        for key, value in graph.items(): # On va parcourir tous les états pour savoir si un état est absorbant
-            if len(value)==1 and value[0] == key or len(value)==0:
-                notirreductibleresult.append([key])
-        if len(notirreductibleresult)==0: # Si il n'y en a pas
-            return self.get_communication_classes() # On renvoie la sous-chaine de markov irreductible
-        # print(notirreductibleresult)
+        graph_connexe = self.get_communication_classes()
+        if len(graph_connexe)==1: # Si le graphe est fortement connexe
+            return self.get_communication_classes() # On renvoie tout simplement le graphe
+        # print(graph)
+        found = False
+        for i in range (len(graph_connexe)): # Sinon pour tous les sous-essemble
+            # print(graph_connexe[i])
+            for k in range(len(graph_connexe[i])): # Pour tous les éléments d'un sous-ensemble
+                # print(graph_connexe[i][k])
+                for j in range(len(graph[graph_connexe[i][k]])): # Pour tous les successeurs d'un élément d'un sous-ensemble
+                    if graph[graph_connexe[i][k]][j] not in graph_connexe[i]: # Si le successeur ne fait pas partie du sous-ensemble
+                        # print("not in", graph[graph_connexe[i][0]][j], graph_connexe[i])
+                        found = True # sa veut dire que le sous-ensemble n'est pas absorbant
+            if not found : # Si on a pas trouver de successeur qui n'appartient pas au sous-ensemble
+                notirreductibleresult.append(graph_connexe[i]) # Alors le sous-ensemble est absorbant et on l'ajoute dans le resultat
+                found=False # On réinitialise la variable
         return notirreductibleresult
 
     def is_irreducible(self):
@@ -278,6 +290,7 @@ class CdM():
         Méthode qui va regarder si un CdM est ergodique ou non
         :return:
         """
+        self.error=[]
         # print(self.is_irreducible())
         if self.is_irreducible() and self.is_aperiodic():  # Si c'est ergodique et aperiodique
             # print(self.get_transition_matrix())
@@ -319,6 +332,10 @@ class CdM():
             else:
                 res = res + array2[i] - array1[i]
         # print(res)
+        self.error.append(res)
         if res < epsilon:
             return True
         return False
+
+    def get_ergodic_error(self):
+        return self.error
