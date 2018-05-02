@@ -43,25 +43,32 @@ if __name__ == '__main__':
     # m.convergence_M_n()
     # m = MonoBestiole(6, 0.5, 0.5)
     # mouse = MouseInMaze()
-    # p = PeriodicCdM()
+    p = PeriodicCdM()
     # cdm = CdMConvergence(m)
     # cdm.point_fixe()
     # cdm = CdMConvergence(mouse)
     # cdm.point_fixe()
-    # cdm = CdMConvergence(p)
-    # cdm.point_fixe()
+    cdm = CdMConvergence(p)
+    cdm.point_fixe()
 
 
     # p=PeriodicCdM()
     # p.is_ergodic()
 
-    o = Oie(50, 6)
-    graph=o.makeGraph()
-    print(graph)
-
-    sampler=CdMSampler(o)
+    # o = Oie(50, 6)
+    # graph=o.makeGraph()
+    # print(graph)
+    #
+    # sampler=CdMSampler(o)
     # sampler.add_collector(CollGetDistribution(epsilon=1e-5,pas=20000))
     # sampler.add_collector(CollTimeOut(10)) # time out de 10 seconde
     # sampler.add_collector(CollOieFinish())
-    sampler.add_collector(CollTempsMoyen())
-    sampler.run(100000)
+    # sampler.add_collector(CollTempsMoyen())
+    # sampler.run(100000)
+
+    # from Oie import Oie
+    # import pyAgrum.lib.notebook as gnb
+    #
+    # o = Oie(20, 6)
+    # graph = o.makeGraph()
+    # o.show_transition_graph(gnb)

@@ -21,30 +21,32 @@ class CdMConvergence():
         Première méthode
         :return:
         """
-        if self.cdm.is_irreducible() and self.cdm.is_aperiodic():  # Si c'est ergodique et aperiodique
+        self.erreur_ergodic=[]
+        # if self.cdm.is_irreducible() and self.cdm.is_aperiodic():  # Si c'est ergodique et aperiodique
             # print(self.get_transition_matrix())
-            start = time.clock()
-            position = self.cdm.distribution_to_vector(self.cdm.get_initial_distribution())  # Position initiale
-            result = [0] * len(self.cdm.get_states())
-            for i in range(100):  # Nb d'itération
-                for j in range(len(position)):  # Pour chaque position
-                    res = 0
-                    for k in range(len(position)):  # Pour chaque position
-                        # print(self.get_transition_matrix()[j][k])
-                        # Si la valeur de la transition est différente de 0
-                        if not self.cdm.get_transition_matrix()[j][k] == 0:
-                            # On modifie la valeur de l'état k
-                            res = res + position[k] * self.cdm.get_transition_matrix()[j][k]
-                            # print(j)
-                    result[j] = round(res, 4)  # On arrondi le résultat
-                # print(position, result)
-                # On regarde si sa converge en regardant le précédent tableau avec le nouveau
-                if self.check_array_equals(position, result, 0.001, False):
-                    # print(True, position, result)
-                    self.temps_ergodic.append(time.clock() - start)
-                    return True, i, position
-                position = result.copy()
-            self.temps_ergodic.append(time.clock()-start)
+        start = time.clock()
+        position = self.cdm.distribution_to_vector(self.cdm.get_initial_distribution())  # Position initiale
+        result = [0] * len(self.cdm.get_states())
+        for i in range(100):  # Nb d'itération
+            for j in range(len(position)):  # Pour chaque position
+                res = 0
+                for k in range(len(position)):  # Pour chaque position
+                    # print(self.get_transition_matrix()[j][k])
+                    # Si la valeur de la transition est différente de 0
+                    if not self.cdm.get_transition_matrix()[j][k] == 0:
+                        # On modifie la valeur de l'état k
+                        res = res + position[k] * self.cdm.get_transition_matrix()[j][k]
+                        # print(j)
+                result[j] = round(res, 4)  # On arrondi le résultat
+            # print(position, result)
+            # On regarde si sa converge en regardant le précédent tableau avec le nouveau
+            # print(position, result)
+            if self.check_array_equals(position, result, 0.0000001, False):
+                # print(True, position, result)
+                self.temps_ergodic.append(time.clock() - start)
+                return True, i, position
+            position = result.copy()
+        self.temps_ergodic.append(time.clock()-start)
 
     def convergence_pi_n(self, epsilon):
         """
@@ -52,8 +54,8 @@ class CdMConvergence():
         différence entre n et n-1 est assez faible
         :return:
         """
-        if not self.cdm.is_ergodic():
-            return False
+        # if not self.cdm.is_ergodic():
+        #     return False
         array = np.zeros((1, len(self.cdm.get_states()))) # pi à n
         array_n_minus_one = array.copy() # pi à n-1
         # On initialise pi(0)
@@ -98,6 +100,7 @@ class CdMConvergence():
         if forPi :
             self.erreur_pi.append(res)
         else :
+            # print(res)
             self.erreur_ergodic.append(res)
         if res < epsilon:
             return True
@@ -109,8 +112,8 @@ class CdMConvergence():
         :return: Booleen si on a réussi à converger, la position à laquelle
         on a convergé, le point
         """
-        if not self.cdm.is_ergodic():
-            return False
+        # if not self.cdm.is_ergodic():
+        #     return False
         # print(array.shape)
         array = self.cdm.get_transition_matrix()
         array_n_minus_one = array.copy()
@@ -152,13 +155,14 @@ class CdMConvergence():
         Méthode qui calcul le point fixe
         :return:
         """
+        print(self.cdm.is_ergodic())
         if not self.cdm.is_ergodic():
             return False
         start = time.clock()
         pi_n = self.convergence_pi_n(0.000001)
         # M_n = self.convergence_M_n(0.000001)
-        # print("Vecteur propre de M pour la valeur propre 1 : \n", np.dot(pi_n[2][0], self.cdm.get_transition_matrix()))
-        self.temps_point_fixe.append(time.clock()-start)
+        print("Vecteur propre de M pour la valeur propre 1 : \n", np.dot(pi_n[2][0], self.cdm.get_transition_matrix()))
+        # self.temps_point_fixe.append(time.clock()-start)
 
         # print("Partie Point Fixe modifiée")
         # matrice_transition = self.cdm.get_transition_matrix()
@@ -177,15 +181,31 @@ class CdMConvergence():
         :param errorname: Nom de la courbe d'évolution que l'on veut
         :return: rien
         """
+        # print(self.erreur_ergodic)
         plt.title("Evolution de l'erreur pour "+errorname)
         plt.xlabel("Itération")
-        plt.ylabel("Pourcentage d'erreur")
+        plt.ylabel("Valeur de epsilon")
         if errorname == "pi":
             plt.plot(self.erreur_pi)
         elif errorname == "M" :
             plt.plot(self.erreur_M)
         else :
-            plt.plot(self.cdm.get_ergodic_error())
+            plt.plot(self.erreur_ergodic)
+        plt.show()
+
+    def showError(self, errorname, array):
+        """
+        Méthode qui va afficher la courbe des erreur selon la catégorie qu'on veut
+        entré dans le paramètre errorname
+        :param errorname: Nom de la courbe d'évolution que l'on veut
+        :return: rien
+        """
+        # print(self.erreur_ergodic)
+        plt.title("Evolution de l'erreur pour "+errorname)
+        plt.xlabel("Nb d'état")
+        plt.xticks(np.arange(5),(20, 40, 80, 160, 320))
+        plt.ylabel("Valeur de epsilon")
+        plt.plot(array)
         plt.show()
 
     def get_temps(self):
@@ -198,7 +218,7 @@ class CdMConvergence():
         self.temps_M = []
         self.temps_point_fixe = []
         self.temps_ergodic = []
-        for i in range(self.nbRun): # Pour chaque run
+        for i in range(1): # Pour chaque run
             # print(self.temps_ergodic)
             self.is_ergodic()
             self.convergence_pi_n(0.000001)

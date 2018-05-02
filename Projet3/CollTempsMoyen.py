@@ -17,6 +17,9 @@ class CollTempsMoyen(Collector):
         self.start=time.clock()
 
     def receive(self, cdm, iter, state):
+        # print(cdm.cases[state-1])
+        if cdm.cases[state-1] == -2 :
+            return True
         if state == len(cdm.get_states()) : # Si on atteint le dernier état
             self.temps.append(time.clock() - self.start) # On enregistre le temps
             self.start=time.clock() # On remet à zero le chrono

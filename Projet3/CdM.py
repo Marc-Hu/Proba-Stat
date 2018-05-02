@@ -291,7 +291,7 @@ class CdM():
         :return:
         """
         self.error=[]
-        # print(self.is_irreducible())
+        print(self.get_periodicity())
         if self.is_irreducible() and self.is_aperiodic():  # Si c'est ergodique et aperiodique
             # print(self.get_transition_matrix())
             position = self.distribution_to_vector(self.get_initial_distribution())  # Position initiale
